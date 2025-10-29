@@ -39,7 +39,8 @@ app.post('/api/login', async (req, res) => {
             {
                 userId: user._id,
                 name: user.name,
-                isAdmin: user.isAdmin
+                isAdmin: user.isAdmin,
+                isChild: user.isChild
             },
             process.env.JWT_SECRET || 'your-secret-key',
             { expiresIn: '1h' }
@@ -52,7 +53,8 @@ app.post('/api/login', async (req, res) => {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                isAdmin: user.isAdmin
+                isAdmin: user.isAdmin,
+                isChild: user.isChild
             }
         });
     } catch (error) {
@@ -273,6 +275,7 @@ app.get('/api/user/profile', authenticateToken, async (req, res) => {
             name: user.name,
             email: user.email,
             isAdmin: user.isAdmin,
+            isChild: user.isChild,
             maxGifts: user.maxGifts || 1
         });
     } catch (error) {
@@ -644,12 +647,13 @@ app.post('/api/admin/children', authenticateToken, requireAdmin, async (req, res
             return res.status(404).json({ message: 'Parent user not found' });
         }
 
-        // Create child user
+        // Create child user with default password "password"
         const childUser = await User.create({
             name,
             age,
             parentUser: parentUserId,
-            isChild: true
+            isChild: true,
+            password: 'password' // Default password for all child users
         });
 
         // Create empty wishlist for child

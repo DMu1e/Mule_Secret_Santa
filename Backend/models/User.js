@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: function () { return !this.isChild; }, // Only required for non-child users
+        required: true, // Required for all users now (including children)
         minlength: [8, 'Password must be at least 8 characters long']
     },
     isAdmin: {
@@ -62,12 +62,6 @@ const userSchema = new mongoose.Schema({
 
 // Encrypt password using bcrypt before saving
 userSchema.pre('save', async function (next) {
-    // Skip password hashing for child users
-    if (this.isChild) {
-        next();
-        return;
-    }
-
     if (!this.isModified('password')) {
         next();
         return;

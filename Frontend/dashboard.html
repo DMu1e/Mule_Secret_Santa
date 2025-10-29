@@ -823,7 +823,8 @@
                     <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
                     <!-- <li><a href="santachat.html"><i class="fas fa-comments"></i> Santa Chat</a></li> -->
                     <li><a href="wishlist.html"><i class="fas fa-gift"></i>Wishlists</a></li>
-                    <li><a href="gift-choice.html"><i class="fas fa-handshake"></i> Assignment</a></li>
+                    <li class="assignment-link"><a href="gift-choice.html"><i class="fas fa-handshake"></i>
+                            Assignment</a></li>
                     <li><a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
 
                     <!-- Admin-only section -->
@@ -1079,6 +1080,12 @@
                 const adminSections = document.querySelectorAll('.admin-section');
                 adminSections.forEach(section => {
                     section.style.display = payload.isAdmin ? 'block' : 'none';
+                });
+
+                // Hide assignment link for child users
+                const assignmentLinks = document.querySelectorAll('.assignment-link');
+                assignmentLinks.forEach(link => {
+                    link.style.display = payload.isChild ? 'none' : 'block';
                 });
             } catch (error) {
                 console.error('Error checking user role:', error);
