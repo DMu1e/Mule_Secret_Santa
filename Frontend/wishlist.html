@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secret Santa - Wishlists</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Custom Properties */
+        :root {
+            --christmas-red: #D3273E;
+            --christmas-green: #2F5233;
+            --warm-gold: #F5B841;
+            --snow-white: #FFFFFF;
+            --pine-dark: #1C3829;
+            --festive-gradient: linear-gradient(135deg, var(--christmas-red) 0%, #8B1C2C 100%);
+            --green-gradient: linear-gradient(135deg, var(--christmas-green) 0%, #1C3829 100%);
+            --gold-gradient: linear-gradient(135deg, var(--warm-gold) 0%, #D4982F 100%);
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--pine-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .nav-wrapper {
+            background: var(--snow-white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--christmas-red);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            color: var(--warm-gold);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--pine-dark);
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--christmas-red);
+        }
+
+        /* Main Content */
+        .main-content {
+            max-width: 1200px;
+            margin: 6rem auto 2rem;
+            padding: 0 1rem;
+        }
+
+        /* Search Section */
+        .search-section {
+            background: var(--snow-white);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .search-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--christmas-green);
+        }
+
+        .search-button {
+            background: var(--green-gradient);
+            color: var(--snow-white);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            font-weight: 600;
+        }
+
+        .search-button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Wishlist Display */
+        .wishlist-container {
+            background: var(--snow-white);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .wishlist-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .wishlist-header h2 {
+            color: var(--christmas-green);
+            font-size: 1.8rem;
+        }
+
+        .wishlist-items {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .wishlist-item {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--christmas-red);
+            transition: transform 0.3s ease;
+        }
+
+        .wishlist-item:hover {
+            transform: translateX(5px);
+        }
+
+        .wishlist-item h3 {
+            color: var(--christmas-red);
+            margin-bottom: 0.5rem;
+        }
+
+        .wishlist-item p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .wishlist-item-link {
+            color: var(--christmas-green);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .wishlist-item-link:hover {
+            text-decoration: underline;
+        }
+
+        .priority-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            background: var(--gold-gradient);
+            color: var(--snow-white);
+            margin-top: 0.5rem;
+        }
+
+        /* Message Styles */
+        .message {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .search-container {
+                flex-direction: column;
+            }
+
+            .search-button {
+                width: 100%;
+            }
+
+            .wishlist-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <div class="nav-wrapper">
+        <nav>
+            <a href="dashboard.html" class="logo">
+                <i class="fas fa-gift"></i>
+                Secret Santa
+            </a>
+            <div class="nav-links">
+                <a href="dashboard.html">Dashboard</a>
+                <a href="wishlist.html" class="active">Wishlists</a>
+                <span id="user-name"></span>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" class="search-input" id="user-search" placeholder="Filter users...">
+                <button class="search-button" id="search-button">
+                    <i class="fas fa-search"></i>
+                    Filter
+                </button>
+            </div>
+        </div>
+
+        <!-- All Wishlists Display -->
+        <div id="all-wishlists">
+            <!-- Wishlists will be dynamically added here -->
+        </div>
+    </div>
+    <script>
+        // API URL
+        const API_URL = 'http://localhost:3000/api';
+
+        // Function to get the authentication token
+        function getAuthToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Function to make authenticated API requests
+        async function apiRequest(endpoint, options = {}) {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, {
+                    ...defaultOptions,
+                    ...options,
+                    headers: {
+                        ...defaultOptions.headers,
+                        ...options.headers
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    if (response.status === 401 || response.status === 403) {
+                        // Clear invalid token
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error(errorData.message || 'API request failed');
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API request error:', error);
+                throw error;
+            }
+        }
+
+        // Function to load user data
+        function loadUserData() {
+            try {
+                const userData = JSON.parse(localStorage.getItem('user'));
+                if (!userData) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                document.getElementById('user-name').textContent = userData.name;
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Function to load all wishlists
+        async function loadAllWishlists() {
+            try {
+                const wishlists = await apiRequest('/wishlists');
+                if (!wishlists) {
+                    throw new Error('No wishlists data received');
+                }
+                displayAllWishlists(wishlists);
+            } catch (error) {
+                console.error('Error loading wishlists:', error);
+                displayError('Error loading wishlists. Please ensure you are logged in and try refreshing the page.');
+            }
+        }
+
+        // Function to display all wishlists
+        function displayAllWishlists(wishlists) {
+            const container = document.getElementById('all-wishlists');
+
+            if (!wishlists || wishlists.length === 0) {
+                container.innerHTML = '<div class="message">No wishlists available</div>';
+                return;
+            }
+
+            // Filter out any wishlists with null/undefined users (shouldn't happen after backend fix, but safety check)
+            const validWishlists = wishlists.filter(wishlist => {
+                if (!wishlist || !wishlist.user || !wishlist.user.name) {
+                    console.warn('Skipping invalid wishlist:', wishlist);
+                    return false;
+                }
+                return true;
+            });
+
+            if (validWishlists.length === 0) {
+                container.innerHTML = '<div class="message">No wishlists available</div>';
+                return;
+            }
+
+            const wishlistsHtml = validWishlists.map(wishlist => `
+                <div class="wishlist-container">
+                    <div class="wishlist-header">
+                        <h2>${wishlist.user.name}'s Wishlist</h2>
+                    </div>
+                    <div class="wishlist-items">
+                        ${wishlist.items.length === 0 ?
+                    '<div class="message">No items in wishlist</div>' :
+                    wishlist.items.map(item => `
+                                <div class="wishlist-item">
+                                    <h3>${item.name}</h3>
+                                    ${item.description ? `<p>${item.description}</p>` : ''}
+                                    ${item.link ? `
+                                        <a href="${item.link}" class="wishlist-item-link" target="_blank">
+                                            View Item <i class="fas fa-external-link-alt"></i>
+                                        </a>
+                                    ` : ''}
+                                    <div class="priority-badge">Priority: ${getPriorityLabel(item.priority)}</div>
+                                </div>
+                            `).join('')
+                }
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = wishlistsHtml;
+        }
+
+        // Function to filter wishlists
+        function filterWishlists(searchText) {
+            const wishlistContainers = document.querySelectorAll('.wishlist-container');
+            const searchLower = searchText.toLowerCase();
+
+            wishlistContainers.forEach(container => {
+                const userName = container.querySelector('h2').textContent.toLowerCase();
+                if (userName.includes(searchLower)) {
+                    container.style.display = 'block';
+                } else {
+                    container.style.display = 'none';
+                }
+            });
+        }
+
+        // Function to display error message
+        function displayError(message) {
+            const container = document.getElementById('all-wishlists');
+            container.innerHTML = `<div class="message">${message}</div>`;
+        }
+
+        // Function to get priority label
+        function getPriorityLabel(priority) {
+            const labels = {
+                1: 'High',
+                2: 'Medium-High',
+                3: 'Medium',
+                4: 'Medium-Low',
+                5: 'Low'
+            };
+            return labels[priority] || 'Medium';
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', function () {
+            loadUserData();
+            loadAllWishlists();
+
+            const searchButton = document.getElementById('search-button');
+            const searchInput = document.getElementById('user-search');
+
+            searchButton.addEventListener('click', () => {
+                filterWishlists(searchInput.value.trim());
+            });
+
+            searchInput.addEventListener('keyup', (e) => {
+                filterWishlists(searchInput.value.trim());
+            });
+        });
+    </script>
+</body>
+
+</html>

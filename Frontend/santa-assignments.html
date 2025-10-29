@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Santa Assignments - Secret Santa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --christmas-red: #D3273E;
+            --christmas-green: #2F5233;
+            --warm-gold: #F5B841;
+            --snow-white: #FFFFFF;
+            --pine-dark: #1C3829;
+            --festive-gradient: linear-gradient(135deg, var(--christmas-red) 0%, #8B1C2C 100%);
+            --green-gradient: linear-gradient(135deg, var(--christmas-green) 0%, #1C3829 100%);
+            --gold-gradient: linear-gradient(135deg, var(--warm-gold) 0%, #D4982F 100%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--pine-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: var(--green-gradient);
+            color: var(--snow-white);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--snow-white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            color: var(--christmas-green);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .button {
+            background: var(--green-gradient);
+            color: var(--snow-white);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .error-message {
+            color: var(--christmas-red);
+            background-color: #ffebee;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--christmas-green);
+            background-color: #e8f5e9;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .assignments-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .assignments-table th,
+        .assignments-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .assignments-table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--christmas-green);
+        }
+
+        .assignments-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-indicator.success {
+            background-color: #4CAF50;
+        }
+
+        .status-indicator.warning {
+            background-color: #FFC107;
+        }
+
+        .status-indicator.error {
+            background-color: #F44336;
+        }
+
+        .regenerate-btn {
+            background: var(--festive-gradient);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: transform 0.2s ease;
+        }
+
+        .regenerate-btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .child-user {
+            color: var(--christmas-red);
+            font-style: italic;
+        }
+
+        .info-box {
+            background-color: #e8f5e9;
+            border-left: 4px solid var(--christmas-green);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border-radius: 4px;
+        }
+
+        .no-assignments {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1>Santa Assignments</h1>
+    </header>
+
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <button class="button" onclick="window.location.href='admin.html'">
+                <i class="fas fa-arrow-left"></i> Back to Admin Dashboard
+            </button>
+            <button class="button" onclick="regenerateAssignments()">
+                <i class="fas fa-sync"></i> Regenerate Assignments
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+
+        <!-- Assignments Section -->
+        <section class="section">
+            <h2>Current Assignments</h2>
+            <div class="info-box">
+                <p><i class="fas fa-info-circle"></i> Assignments are automatically updated when gift restrictions are
+                    saved. Use the "Regenerate Assignments" button to create new random assignments while respecting all
+                    restrictions.</p>
+            </div>
+            <div class="table-container">
+                <table class="assignments-table">
+                    <thead>
+                        <tr>
+                            <th>Recipient</th>
+                            <th>Secret Santa</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assignments-table-body">
+                        <!-- Assignments will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // API URLs and endpoints
+        const BASE_URL = 'http://localhost:3000';
+        const API_URL = `${BASE_URL}/api`;
+        const ADMIN_URL = `${BASE_URL}/api/admin`;
+
+        // Function to get the authentication token
+        function getAuthToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Function to check if user is admin
+        function checkAdminAccess() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (!payload.isAdmin) {
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Function to make authenticated API requests
+        async function apiRequest(endpoint, options = {}) {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            const baseURL = options.baseURL || API_URL;
+            delete options.baseURL;
+
+            try {
+                const response = await fetch(`${baseURL}${endpoint}`, {
+                    ...defaultOptions,
+                    ...options,
+                    headers: {
+                        ...defaultOptions.headers,
+                        ...options.headers
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'An error occurred' }));
+                    throw new Error(errorData.message);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API request error:', error);
+                showError(error.message);
+                throw error;
+            }
+        }
+
+        // Function to load assignments
+        async function loadAssignments() {
+            try {
+                const assignments = await apiRequest('/assignments', {
+                    baseURL: ADMIN_URL
+                });
+
+                const tableBody = document.getElementById('assignments-table-body');
+
+                if (assignments.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="3" class="no-assignments">
+                                <i class="fas fa-info-circle"></i> No assignments have been made yet.
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+
+                tableBody.innerHTML = assignments.map(assignment => `
+                    <tr>
+                        <td>${assignment.recipient.isChild ?
+                        `<span class="child-user">${assignment.recipient.name} (Child)</span>` :
+                        assignment.recipient.name}
+                        </td>
+                        <td>${assignment.santa.name}</td>
+                        <td>
+                            <span class="status-indicator ${getStatusClass(assignment.status)}"></span>
+                            ${getStatusText(assignment.status)}
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showError('Error loading assignments');
+            }
+        }
+
+        // Function to regenerate assignments
+        async function regenerateAssignments() {
+            try {
+                await apiRequest('/assignments/regenerate', {
+                    baseURL: ADMIN_URL,
+                    method: 'POST'
+                });
+
+                showSuccess('Assignments have been regenerated successfully');
+                await loadAssignments();
+            } catch (error) {
+                showError('Error regenerating assignments');
+            }
+        }
+
+        // Helper function to get status class
+        function getStatusClass(status) {
+            switch (status) {
+                case 'valid':
+                    return 'success';
+                case 'warning':
+                    return 'warning';
+                case 'error':
+                    return 'error';
+                default:
+                    return '';
+            }
+        }
+
+        // Helper function to get status text
+        function getStatusText(status) {
+            switch (status) {
+                case 'valid':
+                    return 'Valid Assignment';
+                case 'warning':
+                    return 'Check Restrictions';
+                case 'error':
+                    return 'Invalid Assignment';
+                default:
+                    return 'Unknown';
+            }
+        }
+
+        // Function to show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Function to show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function () {
+            checkAdminAccess();
+            loadAssignments();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Secret Santa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --christmas-red: #D3273E;
+            --christmas-green: #2F5233;
+            --warm-gold: #F5B841;
+            --snow-white: #FFFFFF;
+            --pine-dark: #1C3829;
+            --festive-gradient: linear-gradient(135deg, var(--christmas-red) 0%, #8B1C2C 100%);
+            --green-gradient: linear-gradient(135deg, var(--christmas-green) 0%, #1C3829 100%);
+            --gold-gradient: linear-gradient(135deg, var(--warm-gold) 0%, #D4982F 100%);
+        }
+
+
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #FAFAFA;
+            color: var(--pine-dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            background: var(--green-gradient);
+            color: var(--snow-white);
+            padding: 1.5rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--snow-white);
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            color: var(--christmas-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--christmas-red);
+        }
+
+        .section {
+            background: var(--snow-white);
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .section h2 {
+            color: var(--christmas-green);
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        .button {
+            background: var(--green-gradient);
+            color: var(--snow-white);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.3s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+        }
+
+        .button.delete {
+            background: var(--festive-gradient);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th,
+        td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .error-message {
+            color: var(--christmas-red);
+            background-color: #ffebee;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .success-message {
+            color: var(--christmas-green);
+            background-color: #e8f5e9;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <h1>Admin Dashboard</h1>
+    </header>
+
+    <div class="container">
+        <!-- Navigation -->
+        <div class="nav-buttons">
+            <button class="button" onclick="window.location.href='dashboard.html'">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </button>
+            <button class="button" onclick="window.location.href='gift-restrictions.html'">
+                <i class="fas fa-gift"></i> Gift Restrictions
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <div id="error-message" class="error-message"></div>
+        <div id="success-message" class="success-message"></div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Users</h3>
+                <div class="number" id="total-users">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Child Users</h3>
+                <div class="number" id="total-children">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Users</h3>
+                <div class="number" id="active-users">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Wishlists</h3>
+                <div class="number" id="total-wishlists">0</div>
+            </div>
+        </div>
+
+        <!-- Child User Management -->
+        <section id="child-section" class="section">
+            <h2>Child User Management</h2>
+
+            <!-- Add Child User Form -->
+            <form id="add-child-form">
+                <div class="form-group">
+                    <label for="child-name">Child's Name</label>
+                    <input type="text" id="child-name" required>
+                </div>
+                <div class="form-group">
+                    <label for="child-age">Age</label>
+                    <input type="number" id="child-age" min="0" max="17" required>
+                </div>
+                <div class="form-group">
+                    <label for="parent-user">Parent User</label>
+                    <select id="parent-user" required>
+                        <option value="">Select Parent User</option>
+                    </select>
+                </div>
+                <button type="submit" class="button">Add Child User</button>
+            </form>
+
+            <!-- Child Users Table -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Age</th>
+                            <th>Parent</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="child-users-table">
+                        <!-- Child users will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // API URLs and endpoints
+        const BASE_URL = 'http://localhost:3000';
+        const API_URL = `${BASE_URL}/api`;
+        const ADMIN_URL = `${BASE_URL}/api/admin`;
+
+        // Function to get the authentication token
+        function getAuthToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Function to check if user is admin
+        function checkAdminAccess() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                if (!payload.isAdmin) {
+                    console.error('User is not an admin');
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                console.error('Invalid token:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Function to make authenticated API requests
+        async function apiRequest(endpoint, options = {}) {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            const baseURL = options.baseURL || API_URL;
+            delete options.baseURL;
+
+            try {
+                console.log('Making API request to:', `${baseURL}${endpoint}`);
+                const response = await fetch(`${baseURL}${endpoint}`, {
+                    ...defaultOptions,
+                    ...options,
+                    headers: {
+                        ...defaultOptions.headers,
+                        ...options.headers
+                    }
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ message: 'An error occurred' }));
+                    throw new Error(errorData.message);
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API request error:', error);
+                showError(error.message);
+                throw error;
+            }
+        }
+
+        // Function to animate number changes
+        function animateNumber(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            const currentValue = parseInt(element.textContent) || 0;
+            const duration = 1000; // Animation duration in milliseconds
+            const steps = 20; // Number of steps in the animation
+            const stepDuration = duration / steps;
+            const increment = (targetValue - currentValue) / steps;
+
+            let currentStep = 0;
+            const interval = setInterval(() => {
+                currentStep++;
+                const newValue = Math.round(currentValue + (increment * currentStep));
+                element.textContent = newValue;
+
+                if (currentStep >= steps) {
+                    clearInterval(interval);
+                    element.textContent = targetValue; // Ensure final value is exact
+                }
+            }, stepDuration);
+        }
+
+        // Function to load system statistics
+        async function loadStats() {
+            try {
+                const stats = await apiRequest('/stats', {
+                    baseURL: ADMIN_URL
+                });
+                // Update stats with animation
+                animateNumber('total-users', stats.totalUsers);
+                animateNumber('total-children', stats.totalChildren);
+                animateNumber('active-users', stats.activeUsers);
+                animateNumber('total-wishlists', stats.totalWishlists);
+            } catch (error) {
+                showError('Error loading statistics');
+            }
+        }
+
+        // Function to load parent users for dropdown
+        async function loadParentUsers() {
+            try {
+                console.log('Fetching parent users...');
+                const users = await apiRequest('/users', {
+                    baseURL: ADMIN_URL
+                });
+
+                if (!Array.isArray(users)) {
+                    console.error('Received invalid users data:', users);
+                    showError('Invalid user data received from server');
+                    return;
+                }
+
+                console.log('Total users received:', users.length);
+
+                const parentSelect = document.getElementById('parent-user');
+                parentSelect.innerHTML = '<option value="">Select Parent User</option>';
+
+                const parentUsers = users.filter(user => !user.isChild && !user.isAdmin);
+                console.log('Filtered parent users:', parentUsers.length);
+
+                if (parentUsers.length === 0) {
+                    console.log('No eligible parent users found');
+                    showError('No eligible parent users found');
+                    return;
+                }
+
+                parentUsers.forEach(user => {
+                    const option = document.createElement('option');
+                    option.value = user._id;
+                    option.textContent = user.name || 'Unnamed User';
+                    parentSelect.appendChild(option);
+                });
+
+                console.log('Parent users dropdown populated with', parentUsers.length, 'users');
+            } catch (error) {
+                console.error('Error loading parent users:', error);
+                showError('Error loading parent users: ' + error.message);
+            }
+        }
+
+        // Function to load child users
+        async function loadChildUsers() {
+            try {
+                const children = await apiRequest('/children', {
+                    baseURL: ADMIN_URL
+                });
+                const tableBody = document.getElementById('child-users-table');
+                tableBody.innerHTML = children.map(child => `
+                    <tr>
+                        <td>${child.name}</td>
+                        <td>${child.age}</td>
+                        <td>${child.parentUser ? child.parentUser.name : 'N/A'}</td>
+                        <td class="action-buttons">
+                            <button class="button" onclick="editChildUser('${child._id}')">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="button delete" onclick="deleteChildUser('${child._id}')">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                showError('Error loading child users');
+            }
+        }
+
+        // Function to add child user
+        async function addChildUser(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('child-name').value;
+            const age = document.getElementById('child-age').value;
+            const parentUserId = document.getElementById('parent-user').value;
+
+            try {
+                await apiRequest('/children', {
+                    baseURL: ADMIN_URL,
+                    method: 'POST',
+                    body: JSON.stringify({
+                        name,
+                        age: parseInt(age),
+                        parentUserId
+                    })
+                });
+
+                // Clear form
+                event.target.reset();
+
+                // Reload child users
+                await loadChildUsers();
+                await loadStats();
+
+                showSuccess('Child user added successfully');
+            } catch (error) {
+                showError('Error adding child user');
+            }
+        }
+
+        // Function to edit child user
+        async function editChildUser(childId) {
+            const newName = prompt('Enter new name:');
+            if (!newName) return;
+
+            const newAge = prompt('Enter new age:');
+            if (!newAge || isNaN(newAge)) return;
+
+            try {
+                await apiRequest(`/children/${childId}`, {
+                    baseURL: ADMIN_URL,
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        name: newName,
+                        age: parseInt(newAge)
+                    })
+                });
+
+                await loadChildUsers();
+                showSuccess('Child user updated successfully');
+            } catch (error) {
+                showError('Error updating child user');
+            }
+        }
+
+        // Function to delete child user
+        async function deleteChildUser(childId) {
+            if (!confirm('Are you sure you want to delete this child user?')) return;
+
+            try {
+                await apiRequest(`/children/${childId}`, {
+                    baseURL: ADMIN_URL,
+                    method: 'DELETE'
+                });
+
+                await loadChildUsers();
+                await loadStats();
+                showSuccess('Child user deleted successfully');
+            } catch (error) {
+                showError('Error deleting child user');
+            }
+        }
+
+        // Function to show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Function to show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Refresh data periodically
+        async function refreshData() {
+            try {
+                await loadStats();
+                await loadParentUsers();
+                await loadChildUsers();
+            } catch (error) {
+                console.error('Error refreshing data:', error);
+            }
+        }
+
+        // Initialize admin dashboard
+        document.addEventListener('DOMContentLoaded', function () {
+            checkAdminAccess();
+            refreshData();
+
+            // Refresh data every 30 seconds
+            setInterval(refreshData, 30000);
+
+            // Add event listener for child user form
+            document.getElementById('add-child-form').addEventListener('submit', addChildUser);
+
+            // Close modal when clicking outside
+            window.onclick = function (event) {
+                const modal = document.getElementById('gift-settings-modal');
+                if (event.target === modal) {
+                    closeGiftSettingsModal();
+                }
+            };
+        });
+    </script>
+</body>
+
+</html>

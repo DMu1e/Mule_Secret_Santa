@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mule Secret Santa Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Add FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Custom Properties */
+        :root {
+            --christmas-red: #D3273E;
+            --christmas-green: #2F5233;
+            --warm-gold: #F5B841;
+            --snow-white: #FFFFFF;
+            --pine-dark: #1C3829;
+            --accent-blue: #4A90E2;
+            --bg-light: #F8F9FA;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
+            --festive-gradient: linear-gradient(135deg, #D3273E 0%, #8B1C2C 100%);
+            --green-gradient: linear-gradient(135deg, #2F5233 0%, #1C3829 100%);
+            --gold-gradient: linear-gradient(135deg, #F5B841 0%, #D4982F 100%);
+            --premium-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecef 100%);
+            color: var(--pine-dark);
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* Premium Background Pattern */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(47, 82, 51, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(211, 39, 62, 0.03) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(245, 184, 65, 0.03) 0%, transparent 50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Dashboard Layout */
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Premium Sidebar Styles */
+        .sidebar {
+            width: 300px;
+            background: var(--green-gradient);
+            color: var(--snow-white);
+            padding: 2rem 1.5rem;
+            box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            position: relative;
+            z-index: 1;
+        }
+
+        .user-info i {
+            font-size: 2.5rem;
+            color: var(--warm-gold);
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+        }
+
+        .user-info span {
+            font-weight: 600;
+            font-size: 1.1rem;
+            letter-spacing: 0.3px;
+        }
+
+        .sidebar nav {
+            position: relative;
+            z-index: 1;
+        }
+
+        .sidebar nav ul {
+            list-style: none;
+        }
+
+        .sidebar nav ul li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar nav ul li a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--snow-white);
+            text-decoration: none;
+            padding: 1rem 1.2rem;
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar nav ul li a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            transition: width 0.3s ease;
+        }
+
+        .sidebar nav ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.12);
+            transform: translateX(5px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .sidebar nav ul li a:hover::before {
+            width: 4px;
+        }
+
+        .sidebar nav ul li a i {
+            color: var(--warm-gold);
+            font-size: 1.1rem;
+            min-width: 24px;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            padding: 2.5rem;
+            background: transparent;
+            overflow-y: auto;
+        }
+
+        .user-welcome {
+            font-size: 2.5rem;
+            background: var(--green-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* Premium Scripture Box */
+        .scripture-box {
+            background: linear-gradient(135deg, #fff 0%, #fafbfc 100%);
+            padding: 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(211, 39, 62, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .scripture-box::before {
+            content: '"';
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            font-size: 120px;
+            color: rgba(211, 39, 62, 0.05);
+            font-family: Georgia, serif;
+            line-height: 1;
+        }
+
+        .scripture-box h3 {
+            color: var(--christmas-red);
+            margin-bottom: 1.2rem;
+            font-size: 1.3rem;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .scripture-box p {
+            position: relative;
+            z-index: 1;
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #4a5568;
+        }
+
+        /* Premium Dashboard Sections */
+        .dashboard-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 2.5rem;
+            margin-bottom: 2rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-section::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--green-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .dashboard-section:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .dashboard-section:hover::after {
+            opacity: 1;
+        }
+
+        .dashboard-section h2 {
+            color: var(--christmas-green);
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .dashboard-section h2::before {
+            content: '';
+            width: 4px;
+            height: 28px;
+            background: var(--gold-gradient);
+            border-radius: 2px;
+        }
+
+        /* Premium Chat Interface */
+        .chat-interface {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            box-shadow: var(--shadow-md);
+            overflow: hidden;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            padding: 0;
+        }
+
+        .chat-messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 2rem;
+            background: linear-gradient(to bottom, #fafbfc, #ffffff);
+        }
+
+        .chat-message {
+            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            animation: messageSlide 0.3s ease;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-message strong {
+            color: var(--christmas-green);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .chat-message p {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 16px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            box-shadow: var(--shadow-sm);
+            color: #2d3748;
+            line-height: 1.6;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: white;
+            border-top: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 1rem 1.5rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: var(--christmas-green);
+            box-shadow: 0 0 0 4px rgba(47, 82, 51, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .chat-input button {
+            background: var(--green-gradient);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(47, 82, 51, 0.2);
+        }
+
+        .chat-input button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(47, 82, 51, 0.3);
+        }
+
+        .chat-input button:active {
+            transform: translateY(0);
+        }
+
+        /* Premium Wishlist Section */
+        .add-item-form {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .add-item-form input,
+        .add-item-form select {
+            padding: 1rem 1.2rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            outline: none;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .add-item-form input:focus,
+        .add-item-form select:focus {
+            border-color: var(--christmas-green);
+            box-shadow: 0 0 0 4px rgba(47, 82, 51, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .add-item-form button {
+            background: var(--green-gradient);
+            color: var(--snow-white);
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            align-self: flex-end;
+            font-weight: 600;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(47, 82, 51, 0.2);
+        }
+
+        .add-item-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(47, 82, 51, 0.3);
+        }
+
+        .add-item-form button:active {
+            transform: translateY(0);
+        }
+
+        .wishlist-items {
+            display: grid;
+            gap: 1.2rem;
+        }
+
+        .wishlist-item {
+            background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1.5rem;
+            align-items: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wishlist-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--gold-gradient);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+
+        .wishlist-item:hover {
+            transform: translateX(4px);
+            box-shadow: var(--shadow-md);
+            border-color: rgba(245, 184, 65, 0.2);
+        }
+
+        .wishlist-item:hover::before {
+            transform: scaleY(1);
+        }
+
+        .wishlist-item-content h3 {
+            color: var(--pine-dark);
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        .wishlist-item-content p {
+            color: #718096;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .wishlist-item-link {
+            color: var(--christmas-red);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .wishlist-item-link:hover {
+            color: #8B1C2C;
+            gap: 0.5rem;
+        }
+
+        .wishlist-item-priority {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            background: var(--gold-gradient);
+            color: var(--pine-dark);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(245, 184, 65, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        .wishlist-item-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .wishlist-item-actions button {
+            background: rgba(0, 0, 0, 0.04);
+            border: none;
+            cursor: pointer;
+            padding: 0.8rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+        }
+
+        .wishlist-item-actions button:hover {
+            background: rgba(0, 0, 0, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .wishlist-item-actions .delete-item {
+            color: var(--christmas-red);
+        }
+
+        .wishlist-item-actions .delete-item:hover {
+            background: rgba(211, 39, 62, 0.1);
+        }
+
+        .wishlist-item-actions .edit-item {
+            color: var(--christmas-green);
+        }
+
+        .wishlist-item-actions .edit-item:hover {
+            background: rgba(47, 82, 51, 0.1);
+        }
+
+        /* Premium Admin Controls */
+        .admin-controls-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .admin-controls-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--red-gradient);
+        }
+
+        .admin-controls-section h2 {
+            color: var(--pine-dark);
+            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .admin-controls-section h2::before {
+            content: '👑';
+            font-size: 2rem;
+        }
+
+        .admin-controls {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .admin-controls button {
+            background: linear-gradient(135deg, #D3273E 0%, #B01F33 100%);
+            color: white;
+            border: none;
+            padding: 1.2rem 2rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.05rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 12px rgba(211, 39, 62, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-controls button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .admin-controls button:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .admin-controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(211, 39, 62, 0.4);
+        }
+
+        .admin-controls button:active {
+            transform: translateY(0);
+        }
+
+        #assignment-result {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-top: 1.5rem;
+            border: 2px solid #e2e8f0;
+            box-shadow: var(--shadow-sm);
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            color: #2d3748;
+            line-height: 1.8;
+        }
+
+        #assignment-result.success {
+            border-color: var(--christmas-green);
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+
+        #assignment-result.error {
+            border-color: var(--christmas-red);
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+        }
+
+        /* Admin Section */
+        .admin-section {
+            display: none;
+            /* Hidden by default, shown via JS for admin users */
+        }
+
+        .admin-section h3 {
+            color: var(--warm-gold);
+            margin: 1.5rem 0 1rem;
+        }
+
+        /* Premium Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--christmas-green), var(--pine-dark));
+            border-radius: 10px;
+            transition: background 0.3s ease;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, var(--pine-dark), var(--christmas-green));
+        }
+
+        /* Loading States */
+        .loading {
+            opacity: 0.6;
+            pointer-events: none;
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            margin: -15px 0 0 -15px;
+            border: 3px solid rgba(47, 82, 51, 0.1);
+            border-top-color: var(--christmas-green);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .mt-1 {
+            margin-top: 1rem;
+        }
+
+        .mt-2 {
+            margin-top: 2rem;
+        }
+
+        .mb-1 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-2 {
+            margin-bottom: 2rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 1.5rem;
+                position: relative;
+                backdrop-filter: none;
+            }
+
+            .main-content {
+                padding: 1.5rem;
+            }
+
+            .user-welcome {
+                font-size: 1.8rem;
+            }
+
+            .dashboard-section {
+                padding: 1.5rem;
+            }
+
+            .dashboard-section h2 {
+                font-size: 1.5rem;
+            }
+
+            .add-item-form,
+            .admin-controls-section {
+                padding: 1.5rem;
+            }
+
+            .form-group {
+                gap: 1rem;
+            }
+
+            .wishlist-item {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .wishlist-item-actions {
+                justify-self: flex-end;
+            }
+
+            .chat-messages {
+                height: 300px;
+                padding: 1rem;
+            }
+
+            .chat-input {
+                padding: 1rem;
+                flex-direction: column;
+            }
+
+            .chat-input button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span id="user-name">Loading...</span>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+                    <!-- <li><a href="santachat.html"><i class="fas fa-comments"></i> Santa Chat</a></li> -->
+                    <li><a href="wishlist.html"><i class="fas fa-gift"></i>Wishlists</a></li>
+                    <li><a href="gift-choice.html"><i class="fas fa-handshake"></i> Assignment</a></li>
+                    <li><a href="#" id="logout-button"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+
+                    <!-- Admin-only section -->
+                    <li class="admin-section">
+                        <h3>Admin Controls</h3>
+                        <ul>
+                            <!-- <li><a href="#config"><i class="fas fa-cog"></i> Configuration</a></li> -->
+                            <li><a href="gift-restrictions.html"><i class="fas fa-users"></i> User Management</a></li>
+                            <li><a href="santa-assignments.html"><i class="fas fa-user-secret"></i> Santa
+                                    Assignments</a></li>
+                            <li><a href="gift-restrictions.html"><i class="fas fa-ban"></i> Gifting Restrictions</a>
+                            </li>
+                            <li><a href="admin.html#child-section"><i class="fas fa-child"></i> Child Users</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Welcome Message -->
+            <h1 class="user-welcome">Welcome to Mule Secret Santa, <span id="welcome-name">Friend</span>!</h1>
+
+            <!-- Scripture Box -->
+            <div class="scripture-box">
+                <h3>2 Corinthians 9:6-8</h3>
+                <p>"Remember this: Whoever sows sparingly will also reap sparingly, and whoever sows generously will
+                    also reap generously. Each of you should give what you have decided in your heart to give, not
+                    reluctantly or under compulsion, for God loves a cheerful giver. And God is able to bless you
+                    abundantly, so that in all things at all times, having all that you need, you will abound in every
+                    good work."</p>
+            </div>
+
+            <!-- Main Dashboard Sections -->
+
+            <section id="wishlist-section" class="dashboard-section">
+                <h2>My Wishlist</h2>
+                <div class="wishlist-content">
+                    <div class="add-item-form">
+                        <div class="form-group">
+                            <input type="text" placeholder="Item name" id="wishlist-item-name" required>
+                            <input type="text" placeholder="Description (optional)" id="wishlist-item-description">
+                            <input type="url" placeholder="Link (optional)" id="wishlist-item-link">
+                            <select id="wishlist-item-priority">
+                                <option value="1">High Priority</option>
+                                <option value="2">Medium-High Priority</option>
+                                <option value="3" selected>Medium Priority</option>
+                                <option value="4">Medium-Low Priority</option>
+                                <option value="5">Low Priority</option>
+                            </select>
+                        </div>
+                        <button id="add-to-wishlist">Add Item</button>
+                    </div>
+                    <div class="wishlist-items">
+                        <!-- Wishlist items will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Admin Sections (hidden by default) -->
+
+        </main>
+    </div>
+
+    <script>
+        // API URL
+        const API_URL = 'http://localhost:3000/api';
+
+        // Function to get the authentication token
+        function getAuthToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Function to make authenticated API requests
+        async function apiRequest(endpoint, options = {}) {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, {
+                    ...defaultOptions,
+                    ...options,
+                    headers: {
+                        ...defaultOptions.headers,
+                        ...options.headers
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    throw new Error('API request failed');
+                }
+
+                return await response.json();
+            } catch (error) {
+                console.error('API request error:', error);
+                throw error;
+            }
+        }
+
+        // Wishlist Management
+        const wishlistItems = document.querySelector('.wishlist-items');
+        const addItemForm = document.querySelector('.add-item-form');
+        const itemNameInput = document.getElementById('wishlist-item-name');
+        const itemDescInput = document.getElementById('wishlist-item-description');
+        const itemLinkInput = document.getElementById('wishlist-item-link');
+        const itemPrioritySelect = document.getElementById('wishlist-item-priority');
+
+        // Function to load wishlist items
+        async function loadWishlist() {
+            try {
+                const wishlist = await apiRequest('/wishlist');
+                renderWishlist(wishlist.items);
+            } catch (error) {
+                console.error('Error loading wishlist:', error);
+            }
+        }
+
+        // Function to render wishlist items
+        function renderWishlist(items) {
+            wishlistItems.innerHTML = items.map(item => `
+                <div class="wishlist-item" data-id="${item._id}">
+                    <div class="wishlist-item-content">
+                        <h3>${item.name}</h3>
+                        ${item.description ? `<p>${item.description}</p>` : ''}
+                        ${item.link ? `<a href="${item.link}" class="wishlist-item-link" target="_blank">View Item <i class="fas fa-external-link-alt"></i></a>` : ''}
+                        <span class="wishlist-item-priority">Priority: ${getPriorityLabel(item.priority)}</span>
+                    </div>
+                    <div class="wishlist-item-actions">
+                        <button class="edit-item" onclick="editWishlistItem('${item._id}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="delete-item" onclick="deleteWishlistItem('${item._id}')">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Function to get priority label
+        function getPriorityLabel(priority) {
+            const labels = {
+                1: 'High',
+                2: 'Medium-High',
+                3: 'Medium',
+                4: 'Medium-Low',
+                5: 'Low'
+            };
+            return labels[priority] || 'Medium';
+        }
+
+        // Function to add wishlist item
+        async function addWishlistItem(event) {
+            event.preventDefault();
+
+            const name = itemNameInput.value.trim();
+            if (!name) return;
+
+            try {
+                const newItem = {
+                    name,
+                    description: itemDescInput.value.trim(),
+                    link: itemLinkInput.value.trim(),
+                    priority: parseInt(itemPrioritySelect.value)
+                };
+
+                await apiRequest('/wishlist/items', {
+                    method: 'POST',
+                    body: JSON.stringify(newItem)
+                });
+
+                // Clear form
+                itemNameInput.value = '';
+                itemDescInput.value = '';
+                itemLinkInput.value = '';
+                itemPrioritySelect.value = '3';
+
+                // Reload wishlist
+                await loadWishlist();
+            } catch (error) {
+                console.error('Error adding wishlist item:', error);
+            }
+        }
+
+        // Function to delete wishlist item
+        async function deleteWishlistItem(itemId) {
+            if (!confirm('Are you sure you want to delete this item?')) return;
+
+            try {
+                await apiRequest(`/wishlist/items/${itemId}`, {
+                    method: 'DELETE'
+                });
+                await loadWishlist();
+            } catch (error) {
+                console.error('Error deleting wishlist item:', error);
+            }
+        }
+
+        // Function to edit wishlist item
+        async function editWishlistItem(itemId) {
+            const itemElement = document.querySelector(`[data-id="${itemId}"]`);
+            const nameElement = itemElement.querySelector('h3');
+            const descElement = itemElement.querySelector('p');
+            const linkElement = itemElement.querySelector('.wishlist-item-link');
+
+            const newName = prompt('Enter new name:', nameElement.textContent);
+            if (!newName) return;
+
+            const newDesc = prompt('Enter new description:', descElement ? descElement.textContent : '');
+            const newLink = prompt('Enter new link:', linkElement ? linkElement.href : '');
+
+            try {
+                await apiRequest(`/wishlist/items/${itemId}`, {
+                    method: 'PUT',
+                    body: JSON.stringify({
+                        name: newName,
+                        description: newDesc,
+                        link: newLink
+                    })
+                });
+                await loadWishlist();
+            } catch (error) {
+                console.error('Error updating wishlist item:', error);
+            }
+        }
+
+        // Function to check user role and show/hide admin sections
+        function checkUserRole() {
+            const token = getAuthToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Decode JWT token to check role
+            try {
+                const payload = JSON.parse(atob(token.split('.')[1]));
+                const adminSections = document.querySelectorAll('.admin-section');
+                adminSections.forEach(section => {
+                    section.style.display = payload.isAdmin ? 'block' : 'none';
+                });
+            } catch (error) {
+                console.error('Error checking user role:', error);
+            }
+        }
+
+        // Function to load user data and update welcome message
+        async function loadUserData() {
+            try {
+                const token = getAuthToken();
+                if (!token) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const userData = JSON.parse(localStorage.getItem('user'));
+                if (!userData) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Update both the sidebar and welcome message with the user's name
+                const userNameElement = document.getElementById('user-name');
+                const welcomeNameElement = document.getElementById('welcome-name');
+
+                if (userNameElement) {
+                    userNameElement.textContent = userData.name;
+                }
+                if (welcomeNameElement) {
+                    welcomeNameElement.textContent = userData.name;
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Function to handle logout
+        function handleLogout() {
+            // Clear local storage
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            // Redirect to login page
+            window.location.href = 'login.html';
+        }
+
+        // Add event listeners
+        document.getElementById('add-to-wishlist').addEventListener('click', addWishlistItem);
+        document.getElementById('logout-button').addEventListener('click', handleLogout);
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function () {
+            checkUserRole();
+            loadUserData();
+            loadWishlist();
+        });
+    </script>
+</body>
+
+</html>

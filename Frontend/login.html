@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Secret Santa</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Custom Properties */
+        :root {
+            --christmas-red: #D3273E;
+            --christmas-green: #2F5233;
+            --warm-gold: #F5B841;
+            --snow-white: #FFFFFF;
+            --pine-dark: #1C3829;
+            --light-gray: #F5F5F5;
+            --error-red: #ff3333;
+            --festive-gradient: linear-gradient(135deg, var(--christmas-red) 0%, #8B1C2C 100%);
+        }
+
+        /* Reset & Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--light-gray);
+            background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23D3273E" fill-opacity="0.05" d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,208C672,181,768,107,864,80C960,53,1056,75,1152,101.3C1248,128,1344,160,1392,176L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>');
+            background-position: bottom;
+            background-repeat: no-repeat;
+            background-size: 100% auto;
+        }
+
+        /* Navigation */
+        .nav-wrapper {
+            background: var(--snow-white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--christmas-red);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            color: var(--warm-gold);
+        }
+
+        /* Login Container */
+        .login-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .login-box {
+            background: var(--snow-white);
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-box h1 {
+            color: var(--christmas-red);
+            margin-bottom: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .login-box p {
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--christmas-red);
+        }
+
+        .login-button {
+            width: 100%;
+            padding: 1rem;
+            background: var(--festive-gradient);
+            color: var(--snow-white);
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(211, 39, 62, 0.3);
+        }
+
+        .error-message {
+            color: var(--error-red);
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .create-account {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .create-account p {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+
+        .create-account a {
+            color: var(--christmas-red);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .create-account a:hover {
+            color: var(--christmas-green);
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .login-box {
+                padding: 2rem;
+            }
+        }
+
+        /* Password Toggle */
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #666;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: var(--christmas-red);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <div class="nav-wrapper">
+        <nav>
+            <a href="index.html" class="logo">
+                <i class="fas fa-gift"></i>
+                Secret Santa
+            </a>
+        </nav>
+    </div>
+
+    <!-- Login Form -->
+    <div class="login-container">
+        <div class="login-box">
+            <h1>Welcome Back!</h1>
+            <p>Enter your details to access your Secret Santa account</p>
+
+            <!-- Error message placeholder -->
+            <div class="error-message" id="error-message" style="display: none;">
+                Invalid name or password
+            </div>
+
+            <form action="login.php" method="POST">
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" name="name" required autocomplete="username"
+                        placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="password-container">
+                        <input type="password" id="password" name="password" required autocomplete="current-password"
+                            placeholder="Enter your password">
+                        <i class="fas fa-eye toggle-password" id="togglePassword"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-button">Log In</button>
+            </form>
+
+            <div class="create-account">
+                <p>Don't have an account?</p>
+                <a href="signup.html">Create an Account</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password visibility toggle
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+        const loginForm = document.querySelector('form');
+        const errorMessage = document.getElementById('error-message');
+        const nameInput = document.getElementById('name');
+
+        // Toggle password visibility
+        togglePassword.addEventListener('click', function () {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            this.classList.toggle('fa-eye');
+            this.classList.toggle('fa-eye-slash');
+        });
+
+        // Form validation
+        function validateForm() {
+            let isValid = true;
+
+            // Validate name
+            if (nameInput.value.trim() === '') {
+                showError('Please enter your name');
+                isValid = false;
+            }
+
+            // Validate password
+            if (password.value.length < 6) {
+                showError('Password must be at least 6 characters long');
+                isValid = false;
+            }
+
+            return isValid;
+        }
+
+        // Show error message
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // Hide error message
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // Handle form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideError();
+
+            if (!validateForm()) {
+                return;
+            }
+
+            try {
+                // You would replace this URL with your actual backend API endpoint
+                const response = await fetch('http://localhost:3000/api/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: nameInput.value.trim(),
+                        password: password.value
+                    })
+                });
+
+                if (response.ok) {
+                    // Successful login
+                    const data = await response.json();
+                    // Store the token and user data
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify({
+                        id: data.user.id,
+                        name: data.user.name,
+                        email: data.user.email
+                    }));
+                    // Redirect to dashboard
+                    window.location.href = 'dashboard.html';
+                } else {
+                    // Handle login error
+                    const errorData = await response.json();
+                    showError(errorData.message || 'Invalid username or password');
+                }
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('An error occurred during login. Please try again.');
+            }
+        });
+
+        // Clear error when user starts typing
+        nameInput.addEventListener('input', hideError);
+        password.addEventListener('input', hideError);
+    </script>
+</body>
+
+</html>
