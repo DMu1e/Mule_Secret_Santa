@@ -50,6 +50,11 @@ const userSchema = new mongoose.Schema({
         default: 1,
         min: [0, 'maxGifts must be zero or greater']
     },
+    cluster: {
+        type: String,
+        default: null,
+        trim: true
+    },
     excludedUsers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

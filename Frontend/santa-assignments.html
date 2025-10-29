@@ -344,15 +344,18 @@
         // Function to regenerate assignments
         async function regenerateAssignments() {
             try {
-                await apiRequest('/assignments/regenerate', {
+                console.log('Calling regenerate endpoint...');
+                const result = await apiRequest('/assignments/regenerate', {
                     baseURL: ADMIN_URL,
                     method: 'POST'
                 });
 
+                console.log('Regeneration successful:', result);
                 showSuccess('Assignments have been regenerated successfully');
                 await loadAssignments();
             } catch (error) {
-                showError('Error regenerating assignments');
+                console.error('Regeneration error:', error);
+                showError(`Error regenerating assignments: ${error.message || 'Unknown error'}`);
             }
         }
 

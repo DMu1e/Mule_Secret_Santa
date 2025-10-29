@@ -606,11 +606,16 @@ app.get('/api/admin/assignments', authenticateToken, requireAdmin, async (req, r
 // Regenerate Santa assignments (admin only)
 app.post('/api/admin/assignments/regenerate', authenticateToken, requireAdmin, async (req, res) => {
     try {
+        console.log('📌 Regenerate assignments endpoint called');
         const newAssignments = await generateSantaAssignments();
+        console.log(`✅ Successfully generated ${newAssignments.length} assignments`);
         res.json(newAssignments);
     } catch (error) {
-        console.error('Error regenerating assignments:', error);
-        res.status(500).json({ message: 'Error regenerating assignments' });
+        console.error('❌ Error regenerating assignments:', error);
+        res.status(500).json({
+            message: error.message || 'Error regenerating assignments',
+            error: error.toString()
+        });
     }
 });
 
@@ -759,6 +764,102 @@ app.post('/api/admin/cleanup-wishlists', authenticateToken, requireAdmin, async 
         });
     } catch (error) {
         console.error('Cleanup wishlists error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Cluster Management Routes (Admin only)
+
+// Get all clusters with their members
+app.get('/api/admin/clusters', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const users = await User.find({}, 'name cluster isChild');
+
+        // Group users by cluster
+        const clusters = {};
+        users.forEach(user => {
+            const clusterName = user.cluster || 'Unassigned';
+            if (!clusters[clusterName]) {
+                clusters[clusterName] = [];
+            }
+            clusters[clusterName].push({
+                id: user._id,
+                name: user.name,
+                isChild: user.isChild
+            });
+        });
+
+        res.json(clusters);
+    } catch (error) {
+        console.error('Get clusters error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Update user's cluster assignment
+app.put('/api/admin/users/:userId/cluster', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { cluster } = req.body;
+        const user = await User.findById(req.params.userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Allow null or empty string to remove from cluster
+        user.cluster = cluster || null;
+        await user.save();
+
+        res.json({
+            message: 'User cluster updated successfully',
+            user: {
+                id: user._id,
+                name: user.name,
+                cluster: user.cluster
+            }
+        });
+    } catch (error) {
+        console.error('Update user cluster error:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Bulk update clusters for multiple users
+app.post('/api/admin/clusters/bulk-update', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const { updates } = req.body; // Array of { userId, cluster }
+
+        if (!Array.isArray(updates)) {
+            return res.status(400).json({ message: 'Updates must be an array' });
+        }
+
+        const results = [];
+        for (const update of updates) {
+            const user = await User.findById(update.userId);
+            if (user) {
+                user.cluster = update.cluster || null;
+                await user.save();
+                results.push({
+                    userId: user._id,
+                    name: user.name,
+                    cluster: user.cluster,
+                    success: true
+                });
+            } else {
+                results.push({
+                    userId: update.userId,
+                    success: false,
+                    error: 'User not found'
+                });
+            }
+        }
+
+        res.json({
+            message: 'Bulk cluster update completed',
+            results
+        });
+    } catch (error) {
+        console.error('Bulk update clusters error:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });

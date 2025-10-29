@@ -184,6 +184,56 @@
             background-color: #f8f9fa;
             font-weight: 600;
         }
+
+        .cluster-box {
+            background: #f8f9fa;
+            border: 2px solid var(--christmas-green);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .cluster-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .cluster-name {
+            font-weight: 600;
+            color: var(--christmas-green);
+            font-size: 1.1rem;
+        }
+
+        .cluster-members {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .cluster-member {
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remove-member-btn {
+            cursor: pointer;
+            color: var(--christmas-red);
+            font-weight: bold;
+        }
+
+        .add-to-cluster-select {
+            padding: 0.5rem;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
     </style>
 </head>
 
@@ -206,6 +256,29 @@
         <!-- Messages -->
         <div id="error-message" class="error-message"></div>
         <div id="success-message" class="success-message"></div>
+
+        <!-- Cluster Management -->
+        <section class="section">
+            <h2>Cluster Management</h2>
+            <p style="margin-bottom: 1rem; color: #666;">
+                <i class="fas fa-info-circle"></i>
+                Group users into clusters. Users in the same cluster cannot gift to each other.
+                If a user has maxGifts > 1, they cannot give multiple gifts to people in the same cluster.
+            </p>
+            <div style="margin-bottom: 1rem;">
+                <input type="text" id="new-cluster-name" placeholder="New cluster name..."
+                    style="padding: 0.5rem; border: 1px solid #ddd; border-radius: 5px; width: 300px;">
+                <button class="button" onclick="createCluster()" style="margin-left: 0.5rem;">
+                    <i class="fas fa-plus"></i> Create Cluster
+                </button>
+            </div>
+            <div id="clusters-container">
+                <!-- Clusters will be populated here -->
+            </div>
+            <button class="button save" onclick="saveClusters()" style="margin-top: 1rem;">
+                <i class="fas fa-save"></i> Save Cluster Changes
+            </button>
+        </section>
 
         <!-- Users List -->
         <section class="section">
@@ -453,10 +526,201 @@
             }, 5000);
         }
 
+        // Cluster Management Functions
+        let clusterData = {};
+        let userClusterMap = {}; // Track which cluster each user is in
+
+        async function loadClusters() {
+            try {
+                const clusters = await apiRequest('/clusters', {
+                    baseURL: ADMIN_URL
+                });
+
+                clusterData = clusters;
+                renderClusters();
+            } catch (error) {
+                console.error('Error loading clusters:', error);
+                showError('Error loading clusters');
+            }
+        }
+
+        function renderClusters() {
+            const container = document.getElementById('clusters-container');
+            const clusterNames = Object.keys(clusterData).filter(name => name !== 'Unassigned');
+            const unassigned = clusterData['Unassigned'] || [];
+
+            container.innerHTML = `
+                ${clusterNames.map(clusterName => `
+                    <div class="cluster-box" data-cluster="${clusterName}">
+                        <div class="cluster-header">
+                            <span class="cluster-name">${clusterName}</span>
+                            <button class="button cancel" onclick="deleteCluster('${clusterName}')" style="padding: 0.3rem 0.8rem;">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </div>
+                        <div class="cluster-members">
+                            ${clusterData[clusterName].map(user => `
+                                <span class="cluster-member">
+                                    ${user.isChild ? '👶 ' : ''}${user.name}
+                                    <span class="remove-member-btn" onclick="removeFromCluster('${user.id}', '${clusterName}')" title="Remove from cluster">×</span>
+                                </span>
+                            `).join('')}
+                        </div>
+                        <div style="margin-top: 0.5rem;">
+                            <select class="add-to-cluster-select" id="add-user-${clusterName}">
+                                <option value="">Add user to cluster...</option>
+                                ${unassigned.map(user => `
+                                    <option value="${user.id}">${user.isChild ? '👶 ' : ''}${user.name}</option>
+                                `).join('')}
+                            </select>
+                            <button class="button" onclick="addToCluster('${clusterName}')" style="padding: 0.5rem 1rem; margin-left: 0.5rem;">
+                                <i class="fas fa-plus"></i> Add
+                            </button>
+                        </div>
+                    </div>
+                `).join('')}
+                
+                ${unassigned.length > 0 ? `
+                    <div class="cluster-box" style="border-color: #ccc;">
+                        <div class="cluster-header">
+                            <span class="cluster-name" style="color: #666;">Unassigned Users</span>
+                        </div>
+                        <div class="cluster-members">
+                            ${unassigned.map(user => `
+                                <span class="cluster-member" style="background: #f0f0f0;">
+                                    ${user.isChild ? '👶 ' : ''}${user.name}
+                                </span>
+                            `).join('')}
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+        }
+
+        function createCluster() {
+            const input = document.getElementById('new-cluster-name');
+            const clusterName = input.value.trim();
+
+            if (!clusterName) {
+                showError('Please enter a cluster name');
+                return;
+            }
+
+            if (clusterData[clusterName]) {
+                showError('Cluster already exists');
+                return;
+            }
+
+            clusterData[clusterName] = [];
+            input.value = '';
+            renderClusters();
+            showSuccess(`Cluster "${clusterName}" created`);
+        }
+
+        function addToCluster(clusterName) {
+            const select = document.getElementById(`add-user-${clusterName}`);
+            const userId = select.value;
+
+            if (!userId) {
+                showError('Please select a user');
+                return;
+            }
+
+            // Find user in unassigned
+            const unassigned = clusterData['Unassigned'] || [];
+            const userIndex = unassigned.findIndex(u => u.id === userId);
+
+            if (userIndex === -1) {
+                showError('User not found');
+                return;
+            }
+
+            const user = unassigned[userIndex];
+
+            // Remove from unassigned
+            clusterData['Unassigned'].splice(userIndex, 1);
+
+            // Add to cluster
+            if (!clusterData[clusterName]) {
+                clusterData[clusterName] = [];
+            }
+            clusterData[clusterName].push(user);
+
+            renderClusters();
+            showSuccess(`${user.name} added to ${clusterName}`);
+        }
+
+        function removeFromCluster(userId, clusterName) {
+            const cluster = clusterData[clusterName];
+            const userIndex = cluster.findIndex(u => u.id === userId);
+
+            if (userIndex === -1) return;
+
+            const user = cluster[userIndex];
+            cluster.splice(userIndex, 1);
+
+            // Add to unassigned
+            if (!clusterData['Unassigned']) {
+                clusterData['Unassigned'] = [];
+            }
+            clusterData['Unassigned'].push(user);
+
+            renderClusters();
+            showSuccess(`${user.name} removed from ${clusterName}`);
+        }
+
+        function deleteCluster(clusterName) {
+            if (!confirm(`Are you sure you want to delete cluster "${clusterName}"? All members will become unassigned.`)) {
+                return;
+            }
+
+            const members = clusterData[clusterName] || [];
+
+            // Move all members to unassigned
+            if (!clusterData['Unassigned']) {
+                clusterData['Unassigned'] = [];
+            }
+            clusterData['Unassigned'].push(...members);
+
+            delete clusterData[clusterName];
+            renderClusters();
+            showSuccess(`Cluster "${clusterName}" deleted`);
+        }
+
+        async function saveClusters() {
+            try {
+                // Build updates array
+                const updates = [];
+
+                for (const [clusterName, members] of Object.entries(clusterData)) {
+                    const cluster = clusterName === 'Unassigned' ? null : clusterName;
+                    for (const user of members) {
+                        updates.push({
+                            userId: user.id,
+                            cluster: cluster
+                        });
+                    }
+                }
+
+                const result = await apiRequest('/clusters/bulk-update', {
+                    baseURL: ADMIN_URL,
+                    method: 'POST',
+                    body: JSON.stringify({ updates })
+                });
+
+                showSuccess('Cluster assignments saved successfully!');
+                await loadClusters(); // Reload to confirm
+            } catch (error) {
+                console.error('Error saving clusters:', error);
+                showError('Error saving cluster assignments');
+            }
+        }
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', function () {
             checkAdminAccess();
             loadUsers();
+            loadClusters();
         });
     </script>
 </body>
