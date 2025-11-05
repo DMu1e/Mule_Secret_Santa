@@ -807,6 +807,96 @@
                 width: 100%;
             }
         }
+
+        /* Christmas Slideshow Styles */
+        .christmas-slideshow {
+            background: linear-gradient(135deg, #2F5233 0%, #1C3829 100%);
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .christmas-slideshow h2 {
+            text-align: center;
+            color: var(--warm-gold);
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+        }
+
+        .slideshow-container {
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .slide {
+            display: none;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        .slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 10px;
+        }
+
+        .slide-caption {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .slideshow-dots {
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .dot {
+            height: 12px;
+            width: 12px;
+            margin: 0 5px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .dot.active {
+            background-color: var(--warm-gold);
+        }
+
+        .dot:hover {
+            background-color: rgba(255, 255, 255, 0.6);
+        }
     </style>
 </head>
 
@@ -851,13 +941,47 @@
 
             <!-- Scripture Box -->
             <div class="scripture-box">
-                <h3>2 Corinthians 9:6-8</h3>
-                <p>"Remember this: Whoever sows sparingly will also reap sparingly, and whoever sows generously will
-                    also reap generously. Each of you should give what you have decided in your heart to give, not
-                    reluctantly or under compulsion, for God loves a cheerful giver. And God is able to bless you
-                    abundantly, so that in all things at all times, having all that you need, you will abound in every
-                    good work."</p>
+                <h3>Welcome to the digitalised Mbaa Mule Secret Santa.</h3>
+                <p><strong>Remember!</strong></p>
+                <p>1. Keep the secret Santa secret!</p>
+                <p>2. Have fun as you look for the gifts.</p>
+                <p>3. Be as creative as you can....</p>
+                <p>4. Giving is from the heart.</p>
             </div>
+
+            <!-- Christmas Memories Slideshow -->
+            <section class="christmas-slideshow">
+                <h2><i class="fas fa-images"></i> Christmas Memories</h2>
+                <div class="slideshow-container">
+                    <div class="slide active">
+                        <img src="Pictures/Santa_2020.jpg" alt="Christmas 2020">
+                        <div class="slide-caption">Christmas 2020</div>
+                    </div>
+                    <div class="slide">
+                        <img src="Pictures/Santa_2020.1.jpg" alt="Christmas 2020 - Part 2">
+                        <div class="slide-caption">Christmas 2020</div>
+                    </div>
+                    <div class="slide">
+                        <img src="Pictures/Santa_2021.jpg" alt="Christmas 2021">
+                        <div class="slide-caption">Christmas 2021</div>
+                    </div>
+                    <div class="slide">
+                        <img src="Pictures/Santa_2023.jpg" alt="Christmas 2023">
+                        <div class="slide-caption">Christmas 2023</div>
+                    </div>
+                    <div class="slide">
+                        <img src="Pictures/Santa_2024.jpg" alt="Christmas 2024">
+                        <div class="slide-caption">Christmas 2024</div>
+                    </div>
+                </div>
+                <div class="slideshow-dots">
+                    <span class="dot active" onclick="currentSlide(0)"></span>
+                    <span class="dot" onclick="currentSlide(1)"></span>
+                    <span class="dot" onclick="currentSlide(2)"></span>
+                    <span class="dot" onclick="currentSlide(3)"></span>
+                    <span class="dot" onclick="currentSlide(4)"></span>
+                </div>
+            </section>
 
             <!-- Main Dashboard Sections -->
 
@@ -1136,11 +1260,50 @@
         document.getElementById('add-to-wishlist').addEventListener('click', addWishlistItem);
         document.getElementById('logout-button').addEventListener('click', handleLogout);
 
+        // Christmas Slideshow functionality
+        let currentSlideIndex = 0;
+        let slideInterval;
+
+        function showSlide(index) {
+            const slides = document.querySelectorAll('.slide');
+            const dots = document.querySelectorAll('.dot');
+
+            // Hide all slides and deactivate all dots
+            slides.forEach(slide => slide.classList.remove('active'));
+            dots.forEach(dot => dot.classList.remove('active'));
+
+            // Show the selected slide and activate its dot
+            slides[index].classList.add('active');
+            dots[index].classList.add('active');
+
+            currentSlideIndex = index;
+        }
+
+        function nextSlide() {
+            const slides = document.querySelectorAll('.slide');
+            currentSlideIndex = (currentSlideIndex + 1) % slides.length;
+            showSlide(currentSlideIndex);
+        }
+
+        function currentSlide(index) {
+            // Stop automatic slideshow when user manually selects a slide
+            clearInterval(slideInterval);
+            showSlide(index);
+            // Restart automatic slideshow after 5 seconds
+            slideInterval = setInterval(nextSlide, 4000);
+        }
+
+        function startSlideshow() {
+            // Auto-advance slides every 4 seconds
+            slideInterval = setInterval(nextSlide, 4000);
+        }
+
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function () {
             checkUserRole();
             loadUserData();
             loadWishlist();
+            startSlideshow(); // Start the slideshow
         });
     </script>
 </body>
