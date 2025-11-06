@@ -227,7 +227,7 @@
             margin-bottom: 1rem;
         }
 
-        /* Footer */
+        /* Footer with Contact Info */
         footer {
             background: var(--pine-dark);
             color: var(--snow-white);
@@ -238,6 +238,46 @@
         .footer-content {
             max-width: 1200px;
             margin: 0 auto;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.8rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .contact-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        .contact-item i {
+            color: var(--warm-gold);
+            font-size: 1.2rem;
+        }
+
+        .contact-item a {
+            color: var(--snow-white);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        .contact-item a:hover {
+            color: var(--warm-gold);
         }
 
         .social-links {
@@ -364,8 +404,21 @@
     </section>
 
     <!-- Footer -->
-    <footer>
+    <footer id="contact">
         <div class="footer-content">
+            <h3 style="color: var(--warm-gold); margin-bottom: 1.5rem; font-size: 1.8rem;">
+                <i class="fas fa-envelope"></i> Get In Touch
+            </h3>
+            <div class="contact-info" style="margin-bottom: 2rem;">
+                <div class="contact-item">
+                    <i class="fas fa-phone"></i>
+                    <a href="tel:+254780205577">0780205577</a>
+                </div>
+                <div class="contact-item">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:daltonmulem@gmail.com">daltonmulem@gmail.com</a>
+                </div>
+            </div>
             <p>&copy; 2025 Secret Santa. All rights reserved.</p>
             <div class="social-links">
                 <a href="#"><i class="fab fa-facebook"></i></a>

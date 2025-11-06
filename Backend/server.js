@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const connectDB = require('./config/db');
 const User = require('./models/User');
 const Wishlist = require('./models/Wishlist');
@@ -861,6 +862,50 @@ app.post('/api/admin/clusters/bulk-update', authenticateToken, requireAdmin, asy
     } catch (error) {
         console.error('Bulk update clusters error:', error);
         res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Admin: Reset user password
+app.post('/api/admin/reset-password', authenticateToken, async (req, res) => {
+    try {
+        const { userId, newPassword } = req.body;
+
+        // Verify admin
+        const adminUser = await User.findById(req.user.userId);
+        if (!adminUser || !adminUser.isAdmin) {
+            return res.status(403).json({ message: 'Access denied. Admin only.' });
+        }
+
+        // Validate inputs
+        if (!userId || !newPassword) {
+            return res.status(400).json({ message: 'User ID and new password are required' });
+        }
+
+        if (newPassword.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters long' });
+        }
+
+        // Find user
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Hash and update password
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        console.log(`Password reset successfully for user: ${user.name} (${user._id})`);
+
+        res.json({
+            message: `Password reset successfully for ${user.name}`,
+            userId: user._id,
+            userName: user.name
+        });
+    } catch (error) {
+        console.error('Password reset error:', error);
+        res.status(500).json({ message: 'Failed to reset password' });
     }
 });
 
