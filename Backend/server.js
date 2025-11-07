@@ -50,6 +50,22 @@ if (process.env.NODE_ENV === 'production') {
     console.log('📁 Serving static files from Frontend directory');
 }
 
+// Health check endpoint for Railway
+app.get('/health', (req, res) => {
+    const healthcheck = {
+        uptime: process.uptime(),
+        message: 'OK',
+        timestamp: Date.now(),
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+    };
+
+    if (mongoose.connection.readyState === 1) {
+        res.status(200).json(healthcheck);
+    } else {
+        res.status(503).json(healthcheck);
+    }
+});
+
 // API health check endpoint
 app.get('/api', (req, res) => {
     res.json({
@@ -58,6 +74,7 @@ app.get('/api', (req, res) => {
         version: '1.0.0',
         environment: process.env.NODE_ENV || 'development',
         timestamp: new Date().toISOString(),
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
         endpoints: {
             auth: ['/api/login', '/api/signup'],
             user: ['/api/user/profile', '/api/user/password'],
