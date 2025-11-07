@@ -604,10 +604,70 @@ app.get('/api/admin/assignments', authenticateToken, requireAdmin, async (req, r
     }
 });
 
+// Check if user can access gift selection
+app.get('/api/gift-selection/status', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Check if assignments have been made
+        const assignmentsExist = global.currentAssignments && global.currentAssignments.length > 0;
+
+        res.json({
+            canSelectGift: assignmentsExist && !user.hasSelectedGift,
+            hasSelectedGift: user.hasSelectedGift,
+            giftSelectionDate: user.giftSelectionDate,
+            assignmentsExist: assignmentsExist
+        });
+    } catch (error) {
+        console.error('Error checking gift selection status:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Mark that user has selected their gift
+app.post('/api/gift-selection/complete', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.userId);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        if (user.hasSelectedGift) {
+            return res.status(400).json({ message: 'You have already selected your gift' });
+        }
+
+        user.hasSelectedGift = true;
+        user.giftSelectionDate = new Date();
+        await user.save();
+
+        res.json({
+            message: 'Gift selection completed',
+            hasSelectedGift: true,
+            giftSelectionDate: user.giftSelectionDate
+        });
+    } catch (error) {
+        console.error('Error marking gift selection complete:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 // Regenerate Santa assignments (admin only)
 app.post('/api/admin/assignments/regenerate', authenticateToken, requireAdmin, async (req, res) => {
     try {
         console.log('📌 Regenerate assignments endpoint called');
+
+        // Reset all users' hasSelectedGift flag when regenerating
+        await User.updateMany({}, {
+            hasSelectedGift: false,
+            giftSelectionDate: null
+        });
+        console.log('✅ Reset all users gift selection status');
+
         const newAssignments = await generateSantaAssignments();
         console.log(`✅ Successfully generated ${newAssignments.length} assignments`);
         res.json(newAssignments);

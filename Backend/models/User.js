@@ -62,7 +62,15 @@ const userSchema = new mongoose.Schema({
     includedUsers: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
-    }]
+    }],
+    hasSelectedGift: {
+        type: Boolean,
+        default: false
+    },
+    giftSelectionDate: {
+        type: Date,
+        default: null
+    }
 });
 
 // Encrypt password using bcrypt before saving

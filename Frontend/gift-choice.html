@@ -451,6 +451,63 @@
             window.location.href = 'login.html';
         }
 
+        // Check gift selection status first
+        async function checkGiftSelectionStatus() {
+            try {
+                const response = await fetch('http://localhost:3000/api/gift-selection/status', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to check gift selection status');
+                }
+
+                const status = await response.json();
+
+                // If user has already selected gift, redirect to assignment
+                if (status.hasSelectedGift) {
+                    alert('You have already made your gift selection! Redirecting to your assignment...');
+                    window.location.href = 'assignment.html';
+                    return false;
+                }
+
+                // If no assignments exist yet, redirect to dashboard
+                if (!status.assignmentsExist) {
+                    alert('Secret Santa assignments have not been generated yet. Please wait for the admin to create assignments.');
+                    window.location.href = 'dashboard.html';
+                    return false;
+                }
+
+                return true; // Can proceed with gift selection
+            } catch (error) {
+                console.error('Error checking gift selection status:', error);
+                alert('Error checking gift selection status. Redirecting to dashboard...');
+                window.location.href = 'dashboard.html';
+                return false;
+            }
+        }
+
+        // Mark gift selection as complete
+        async function markGiftSelectionComplete() {
+            try {
+                const response = await fetch('http://localhost:3000/api/gift-selection/complete', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('Failed to mark gift selection complete');
+                }
+            } catch (error) {
+                console.error('Error marking gift selection complete:', error);
+            }
+        }
+
         // Snowflake effect
         function createSnowflakes() {
             const snowflakeCount = 20;
@@ -558,6 +615,9 @@
             const loadingOverlay = document.getElementById('loading-overlay');
             loadingOverlay.classList.add('active');
 
+            // Mark gift selection as complete
+            markGiftSelectionComplete();
+
             // Redirect after 1.5 seconds
             setTimeout(() => {
                 window.location.href = 'assignment.html';
@@ -565,10 +625,17 @@
         }
 
         // Initialize page
-        document.addEventListener('DOMContentLoaded', () => {
-            createSnowflakes();
-            generateGiftBoxes();
-        });
+        async function initializePage() {
+            // First check if user can access this page
+            const canProceed = await checkGiftSelectionStatus();
+
+            if (canProceed) {
+                createSnowflakes();
+                await generateGiftBoxes();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initializePage);
     </script>
 </body>
 
