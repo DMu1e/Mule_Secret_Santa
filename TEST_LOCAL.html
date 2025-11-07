@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +11,7 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a3a1f 0%, #2F5233 100%);
@@ -17,6 +19,7 @@
             padding: 2rem;
             line-height: 1.6;
         }
+
         .container {
             max-width: 900px;
             margin: 0 auto;
@@ -26,20 +29,24 @@
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
+
         h1 {
             color: #F5B841;
             margin-bottom: 1rem;
             font-size: 2.5rem;
         }
+
         h2 {
             color: #F5B841;
             margin: 2rem 0 1rem;
             font-size: 1.8rem;
         }
+
         h3 {
             color: #FFD700;
             margin: 1.5rem 0 0.5rem;
         }
+
         .success {
             background: rgba(76, 175, 80, 0.3);
             border-left: 4px solid #4CAF50;
@@ -47,6 +54,7 @@
             margin: 1rem 0;
             border-radius: 8px;
         }
+
         .error {
             background: rgba(244, 67, 54, 0.3);
             border-left: 4px solid #f44336;
@@ -54,6 +62,7 @@
             margin: 1rem 0;
             border-radius: 8px;
         }
+
         .info {
             background: rgba(33, 150, 243, 0.3);
             border-left: 4px solid #2196F3;
@@ -61,6 +70,7 @@
             margin: 1rem 0;
             border-radius: 8px;
         }
+
         .code {
             background: rgba(0, 0, 0, 0.4);
             padding: 1rem;
@@ -69,6 +79,7 @@
             margin: 1rem 0;
             overflow-x: auto;
         }
+
         .btn {
             display: inline-block;
             padding: 1rem 2rem;
@@ -80,17 +91,21 @@
             margin: 0.5rem;
             transition: transform 0.2s;
         }
+
         .btn:hover {
             transform: translateY(-2px);
             background: #A0222F;
         }
+
         .btn-primary {
             background: #F5B841;
             color: #1a3a1f;
         }
+
         .btn-primary:hover {
             background: #E8A825;
         }
+
         .step {
             background: rgba(255, 255, 255, 0.05);
             padding: 1.5rem;
@@ -98,6 +113,7 @@
             border-radius: 12px;
             border: 2px solid rgba(245, 184, 65, 0.3);
         }
+
         .step-number {
             background: #F5B841;
             color: #1a3a1f;
@@ -111,12 +127,15 @@
             font-size: 1.2rem;
             margin-right: 1rem;
         }
+
         ul {
             margin: 1rem 0 1rem 2rem;
         }
+
         li {
             margin: 0.5rem 0;
         }
+
         .test-button {
             display: inline-block;
             padding: 0.8rem 1.5rem;
@@ -129,14 +148,17 @@
             font-weight: bold;
             margin: 0.5rem;
         }
+
         .test-button:hover {
             background: #1976D2;
         }
+
         #test-results {
             margin-top: 1rem;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>🧪 Local Testing Guide</h1>
@@ -146,7 +168,8 @@
 
         <div class="error">
             <h3>⚠️ About the "Cannot GET /api" Error</h3>
-            <p><strong>This is NORMAL!</strong> The <code>/api</code> endpoint is not meant to be accessed directly in a browser. It's just the base path for API endpoints.</p>
+            <p><strong>This is NORMAL!</strong> The <code>/api</code> endpoint is not meant to be accessed directly in a
+                browser. It's just the base path for API endpoints.</p>
         </div>
 
         <h2>🚀 Quick Start (3 Steps)</h2>
@@ -169,7 +192,8 @@
             <strong>Open the Frontend</strong>
             <p style="margin: 1rem 0;">Choose one of these methods:</p>
             <ul>
-                <li><strong>Method A:</strong> Navigate to <code>Frontend</code> folder and double-click <code>index.html</code></li>
+                <li><strong>Method A:</strong> Navigate to <code>Frontend</code> folder and double-click
+                    <code>index.html</code></li>
                 <li><strong>Method B:</strong> Right-click <code>index.html</code> → "Open with" → Chrome/Firefox</li>
                 <li><strong>Method C:</strong> Use VS Code Live Server extension</li>
             </ul>
@@ -192,7 +216,8 @@
             <ul>
                 <li><strong>Homepage:</strong> <code>file:///C:/Users/.../Frontend/index.html</code> (direct)</li>
                 <li><strong>Or:</strong> <code>http://127.0.0.1:5500/index.html</code> (Live Server)</li>
-                <li><strong>API Health:</strong> <a href="http://localhost:3000/api" target="_blank" style="color: #F5B841;">http://localhost:3000/api</a></li>
+                <li><strong>API Health:</strong> <a href="http://localhost:3000/api" target="_blank"
+                        style="color: #F5B841;">http://localhost:3000/api</a></li>
             </ul>
         </div>
 
@@ -238,11 +263,11 @@
         async function testBackend() {
             const results = document.getElementById('test-results');
             results.innerHTML = '<div class="info">Testing backend...</div>';
-            
+
             try {
                 const response = await fetch('http://localhost:3000/api');
                 const data = await response.json();
-                
+
                 results.innerHTML = `
                     <div class="success">
                         <h3>✅ Backend is Running!</h3>
@@ -266,7 +291,7 @@
 
         function testConfig() {
             const results = document.getElementById('test-results');
-            
+
             if (typeof window.APP_CONFIG !== 'undefined') {
                 results.innerHTML = `
                     <div class="success">
@@ -290,7 +315,7 @@
         function openApp() {
             const frontendPath = '../Frontend/index.html';
             window.open(frontendPath, '_blank');
-            
+
             const results = document.getElementById('test-results');
             results.innerHTML = `
                 <div class="info">
@@ -303,4 +328,5 @@
         }
     </script>
 </body>
+
 </html>

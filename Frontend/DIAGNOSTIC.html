@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,7 @@
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a3a1f 0%, #2F5233 100%);
@@ -18,6 +20,7 @@
             padding: 2rem;
             line-height: 1.6;
         }
+
         .container {
             max-width: 1000px;
             margin: 0 auto;
@@ -27,20 +30,24 @@
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
+
         h1 {
             color: #F5B841;
             margin-bottom: 1rem;
         }
+
         h2 {
             color: #FFD700;
             margin: 2rem 0 1rem;
         }
+
         .test-section {
             background: rgba(0, 0, 0, 0.3);
             padding: 1.5rem;
             border-radius: 12px;
             margin: 1rem 0;
         }
+
         .test-button {
             padding: 1rem 2rem;
             background: #2196F3;
@@ -53,14 +60,17 @@
             margin: 0.5rem 0.5rem 0.5rem 0;
             transition: all 0.3s;
         }
+
         .test-button:hover {
             background: #1976D2;
             transform: translateY(-2px);
         }
+
         .test-button:disabled {
             background: #666;
             cursor: not-allowed;
         }
+
         .result {
             margin: 1rem 0;
             padding: 1rem;
@@ -70,22 +80,27 @@
             max-height: 400px;
             overflow-y: auto;
         }
+
         .success {
             background: rgba(76, 175, 80, 0.3);
             border-left: 4px solid #4CAF50;
         }
+
         .error {
             background: rgba(244, 67, 54, 0.3);
             border-left: 4px solid #f44336;
         }
+
         .info {
             background: rgba(33, 150, 243, 0.3);
             border-left: 4px solid #2196F3;
         }
+
         .warning {
             background: rgba(255, 152, 0, 0.3);
             border-left: 4px solid #FF9800;
         }
+
         .code {
             background: rgba(0, 0, 0, 0.5);
             padding: 0.5rem;
@@ -93,6 +108,7 @@
             display: inline-block;
             margin: 0.2rem 0;
         }
+
         .status-indicator {
             display: inline-block;
             width: 12px;
@@ -100,20 +116,24 @@
             border-radius: 50%;
             margin-right: 0.5rem;
         }
+
         .status-online {
             background: #4CAF50;
             box-shadow: 0 0 10px #4CAF50;
         }
+
         .status-offline {
             background: #f44336;
             box-shadow: 0 0 10px #f44336;
         }
+
         pre {
             white-space: pre-wrap;
             word-wrap: break-word;
         }
     </style>
 </head>
+
 <body>
     <div class="container">
         <h1>🔍 Frontend-Backend Connection Diagnostic</h1>
@@ -154,7 +174,7 @@
             <h2>5. Actual Login Test</h2>
             <p>Try logging in with test credentials:</p>
             <div style="margin: 1rem 0;">
-                <input type="text" id="test-username" placeholder="Username" value="admin" 
+                <input type="text" id="test-username" placeholder="Username" value="admin"
                     style="padding: 0.5rem; margin: 0.5rem 0; width: 200px; border-radius: 4px; border: none;">
                 <br>
                 <input type="password" id="test-password" placeholder="Password" value="admin123456"
@@ -175,7 +195,8 @@
         <!-- Run All Tests -->
         <div class="test-section">
             <h2>🎯 Run All Tests</h2>
-            <button class="test-button" onclick="runAllTests()" style="background: #F5B841; color: #1a3a1f; font-size: 1.1rem; padding: 1.2rem 2.5rem;">
+            <button class="test-button" onclick="runAllTests()"
+                style="background: #F5B841; color: #1a3a1f; font-size: 1.1rem; padding: 1.2rem 2.5rem;">
                 ⚡ Run Complete Diagnostic
             </button>
             <div id="all-results" class="result info" style="display:none;"></div>
@@ -190,7 +211,7 @@
 
         function checkConfig() {
             const result = document.getElementById('config-result');
-            
+
             if (typeof window.APP_CONFIG === 'undefined') {
                 result.className = 'result error';
                 result.innerHTML = `
@@ -219,7 +240,7 @@
             result.innerHTML = '<strong>Testing backend connection...</strong>';
 
             const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
-            
+
             try {
                 const startTime = performance.now();
                 const response = await fetch(API_URL, {
@@ -230,9 +251,9 @@
                 });
                 const endTime = performance.now();
                 const responseTime = (endTime - startTime).toFixed(2);
-                
+
                 const data = await response.json();
-                
+
                 result.className = 'result success';
                 result.innerHTML = `
                     <strong>✅ Backend is ONLINE and responding!</strong><br><br>
@@ -271,7 +292,7 @@
             result.innerHTML = '<strong>Testing login endpoint...</strong>';
 
             const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
-            
+
             try {
                 const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
@@ -283,9 +304,9 @@
                         password: 'wrong_password'
                     })
                 });
-                
+
                 const data = await response.json();
-                
+
                 result.className = 'result success';
                 result.innerHTML = `
                     <strong>✅ Login endpoint is responding!</strong><br><br>
@@ -311,7 +332,7 @@
             result.innerHTML = '<strong>Testing signup endpoint...</strong>';
 
             const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
-            
+
             try {
                 const response = await fetch(`${API_URL}/signup`, {
                     method: 'POST',
@@ -324,9 +345,9 @@
                         password: ''
                     })
                 });
-                
+
                 const data = await response.json();
-                
+
                 result.className = 'result success';
                 result.innerHTML = `
                     <strong>✅ Signup endpoint is responding!</strong><br><br>
@@ -350,18 +371,18 @@
             result.innerHTML = '<strong>Testing CORS configuration...</strong>';
 
             const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
-            
+
             try {
                 const response = await fetch(API_URL, {
                     method: 'OPTIONS',
                 });
-                
+
                 const corsHeaders = {
                     'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
                     'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
                     'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
                 };
-                
+
                 result.className = 'result success';
                 result.innerHTML = `
                     <strong>✅ CORS is configured!</strong><br><br>
@@ -387,7 +408,7 @@
             const username = document.getElementById('test-username').value;
             const password = document.getElementById('test-password').value;
             const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
-            
+
             try {
                 const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
@@ -399,9 +420,9 @@
                         password: password
                     })
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (response.ok && data.token) {
                     result.className = 'result success';
                     result.innerHTML = `
@@ -439,7 +460,7 @@
             const result = document.getElementById('network-result');
             result.style.display = 'block';
             result.className = 'result info';
-            
+
             result.innerHTML = `
                 <strong>📊 Network Information</strong><br><br>
                 <strong>Current Page URL:</strong> <span class="code">${window.location.href}</span><br>
@@ -459,50 +480,50 @@
             result.innerHTML = '<strong>⚡ Running complete diagnostic...</strong><br><br>';
 
             const tests = [];
-            
+
             // Test 1: Config
             result.innerHTML += '1️⃣ Checking config... ';
             const configOk = checkConfig();
-            tests.push({name: 'Config', passed: configOk});
+            tests.push({ name: 'Config', passed: configOk });
             result.innerHTML += configOk ? '✅<br>' : '❌<br>';
-            
+
             // Test 2: Backend
             result.innerHTML += '2️⃣ Testing backend connection... ';
             try {
                 const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
                 const resp = await fetch(API_URL);
                 const backendOk = resp.ok;
-                tests.push({name: 'Backend Connection', passed: backendOk});
+                tests.push({ name: 'Backend Connection', passed: backendOk });
                 result.innerHTML += backendOk ? '✅<br>' : '❌<br>';
             } catch (e) {
-                tests.push({name: 'Backend Connection', passed: false});
+                tests.push({ name: 'Backend Connection', passed: false });
                 result.innerHTML += '❌<br>';
             }
-            
+
             // Test 3: Login Endpoint
             result.innerHTML += '3️⃣ Testing login endpoint... ';
             try {
                 const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
                 const resp = await fetch(`${API_URL}/login`, {
                     method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({name: 'test', password: 'test'})
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: 'test', password: 'test' })
                 });
                 const loginOk = resp.status === 401 || resp.status === 200;
-                tests.push({name: 'Login Endpoint', passed: loginOk});
+                tests.push({ name: 'Login Endpoint', passed: loginOk });
                 result.innerHTML += loginOk ? '✅<br>' : '❌<br>';
             } catch (e) {
-                tests.push({name: 'Login Endpoint', passed: false});
+                tests.push({ name: 'Login Endpoint', passed: false });
                 result.innerHTML += '❌<br>';
             }
 
             // Summary
             const passedTests = tests.filter(t => t.passed).length;
             const totalTests = tests.length;
-            
+
             result.innerHTML += '<br><hr style="border-color: rgba(255,255,255,0.3); margin: 1rem 0;"><br>';
             result.innerHTML += `<strong>📊 Test Summary: ${passedTests}/${totalTests} tests passed</strong><br><br>`;
-            
+
             if (passedTests === totalTests) {
                 result.className = 'result success';
                 result.innerHTML += `
@@ -517,13 +538,13 @@
             } else {
                 result.className = 'result error';
                 result.innerHTML += `<strong>❌ Some tests failed</strong><br><br>`;
-                
+
                 tests.forEach(test => {
-                    result.innerHTML += test.passed ? 
-                        `✅ ${test.name}<br>` : 
+                    result.innerHTML += test.passed ?
+                        `✅ ${test.name}<br>` :
                         `❌ ${test.name} - FAILED<br>`;
                 });
-                
+
                 result.innerHTML += `<br><strong>Troubleshooting:</strong><br>
                     1. Make sure backend is running: <span class="code">cd Backend && node server.js</span><br>
                     2. Check browser console (F12) for errors<br>
@@ -534,4 +555,5 @@
         }
     </script>
 </body>
+
 </html>

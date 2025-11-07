@@ -8,6 +8,22 @@ const connectDB = require('./config/db');
 const User = require('./models/User');
 const Wishlist = require('./models/Wishlist');
 
+// Validate critical environment variables
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+    console.error('❌ Missing required environment variables:', missingEnvVars.join(', '));
+    console.error('Please set these in Railway dashboard under Variables tab');
+    process.exit(1);
+}
+
+console.log('✅ Environment variables loaded');
+console.log('📊 NODE_ENV:', process.env.NODE_ENV || 'development');
+console.log('🔌 PORT:', process.env.PORT || 3000);
+console.log('🗄️  MongoDB URI:', process.env.MONGODB_URI ? '✅ Set' : '❌ Missing');
+console.log('🔐 JWT Secret:', process.env.JWT_SECRET ? '✅ Set' : '❌ Missing');
+
 // Connect to database
 connectDB();
 
@@ -1008,16 +1024,55 @@ app.post('/api/admin/reset-password', authenticateToken, async (req, res) => {
 if (process.env.NODE_ENV === 'production') {
     app.get('*', (req, res) => {
         if (!req.path.startsWith('/api')) {
-            res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
+            const indexPath = path.join(__dirname, '../Frontend', 'index.html');
+            console.log(`📄 Serving index.html from: ${indexPath}`);
+            res.sendFile(indexPath, (err) => {
+                if (err) {
+                    console.error('❌ Error serving index.html:', err);
+                    res.status(500).send('Error loading page');
+                }
+            });
         }
     });
 }
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => {
-    console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('❌ Server error:', err);
+    res.status(500).json({
+        message: 'Internal server error',
+        error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    });
+});
+
+// Start server with error handling
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log('='.repeat(50));
+    console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode`);
+    console.log(`🔌 Port: ${PORT}`);
     console.log(`🔗 API available at: http://localhost:${PORT}/api`);
     if (process.env.NODE_ENV === 'production') {
         console.log(`🌐 Frontend served from: ${path.join(__dirname, '../Frontend')}`);
+        console.log(`📁 Static files: ${path.join(__dirname, '../Frontend')}`);
     }
+    console.log('='.repeat(50));
+});
+
+// Handle server errors
+server.on('error', (error) => {
+    if (error.code === 'EADDRINUSE') {
+        console.error(`❌ Port ${PORT} is already in use`);
+    } else {
+        console.error('❌ Server error:', error);
+    }
+    process.exit(1);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('👋 SIGTERM received, shutting down gracefully');
+    server.close(() => {
+        console.log('✅ Server closed');
+        process.exit(0);
+    });
 });

@@ -1,0 +1,13 @@
+{
+    "name": "mule-secret-santa",
+    "version": "1.0.0",
+    "description": "Mule Secret Santa - Full Stack Application",
+    "scripts": {
+        "start": "cd Backend && npm install && node server.js",
+        "postinstall": "cd Backend && npm install"
+    },
+    "engines": {
+        "node": ">=16.0.0",
+        "npm": ">=8.0.0"
+    }
+}
