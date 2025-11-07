@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Secret Santa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="js/config.js"></script>
     <style>
         /* Custom Properties */
         :root {
@@ -249,6 +250,9 @@
     </div>
 
     <script>
+        // Use dynamic API URLs from config
+        const API_URL = window.APP_CONFIG.API_URL;
+
         // Password visibility toggle
         const togglePassword = document.getElementById('togglePassword');
         const password = document.getElementById('password');
@@ -304,8 +308,8 @@
             }
 
             try {
-                // You would replace this URL with your actual backend API endpoint
-                const response = await fetch('http://localhost:3000/api/login', {
+                // Use dynamic API URL
+                const response = await fetch(`${API_URL}/login`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

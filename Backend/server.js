@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const path = require('path');
 const connectDB = require('./config/db');
 const User = require('./models/User');
 const Wishlist = require('./models/Wishlist');
@@ -14,9 +15,43 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const generateSantaAssignments = require('./generateSantaAssignments');
 
+// CORS configuration
+const corsOptions = {
+    origin: process.env.NODE_ENV === 'production'
+        ? (process.env.FRONTEND_URL || '*')
+        : ['http://localhost:5500', 'http://127.0.0.1:5500', 'http://localhost:3000', '*'],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
+
+// Serve static files in production
+if (process.env.NODE_ENV === 'production') {
+    app.use(express.static(path.join(__dirname, '../Frontend')));
+    console.log('📁 Serving static files from Frontend directory');
+}
+
+// API health check endpoint
+app.get('/api', (req, res) => {
+    res.json({
+        status: 'ok',
+        message: '🎄 Mule Secret Santa API is running!',
+        version: '1.0.0',
+        environment: process.env.NODE_ENV || 'development',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            auth: ['/api/login', '/api/signup'],
+            user: ['/api/user/profile', '/api/user/password'],
+            admin: ['/api/admin/users', '/api/admin/generate-assignments'],
+            wishlist: ['/api/wishlist', '/api/wishlist/:userId'],
+            assignment: ['/api/assignment'],
+            giftSelection: ['/api/gift-selection/status', '/api/gift-selection/complete']
+        }
+    });
+});
 
 // Login endpoint
 app.post('/api/login', async (req, res) => {
@@ -969,7 +1004,20 @@ app.post('/api/admin/reset-password', authenticateToken, async (req, res) => {
     }
 });
 
+// Serve frontend for all non-API routes (must be AFTER all API routes)
+if (process.env.NODE_ENV === 'production') {
+    app.get('*', (req, res) => {
+        if (!req.path.startsWith('/api')) {
+            res.sendFile(path.join(__dirname, '../Frontend', 'index.html'));
+        }
+    });
+}
+
 // Start server
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+    console.log(`🔗 API available at: http://localhost:${PORT}/api`);
+    if (process.env.NODE_ENV === 'production') {
+        console.log(`🌐 Frontend served from: ${path.join(__dirname, '../Frontend')}`);
+    }
 });

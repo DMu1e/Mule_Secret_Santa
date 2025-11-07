@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign Up - Secret Santa</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="js/config.js"></script>
     <style>
         /* Custom Properties */
         :root {
@@ -271,6 +272,8 @@
     </div>
 
     <script>
+        const API_URL = window.APP_CONFIG.API_URL;
+
         // Password visibility toggle
         function setupPasswordToggle(inputId, toggleId) {
             const input = document.getElementById(inputId);
@@ -342,7 +345,7 @@
             const password = document.getElementById('password').value;
 
             try {
-                const response = await fetch('http://localhost:3000/api/signup', {
+                const response = await fetch(`${API_URL}/signup`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

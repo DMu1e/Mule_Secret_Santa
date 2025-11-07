@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Local Testing Guide - Mule Secret Santa</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a3a1f 0%, #2F5233 100%);
+            color: #fff;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #F5B841;
+            margin-bottom: 1rem;
+            font-size: 2.5rem;
+        }
+        h2 {
+            color: #F5B841;
+            margin: 2rem 0 1rem;
+            font-size: 1.8rem;
+        }
+        h3 {
+            color: #FFD700;
+            margin: 1.5rem 0 0.5rem;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 4px solid #4CAF50;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            border-left: 4px solid #f44336;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+        .info {
+            background: rgba(33, 150, 243, 0.3);
+            border-left: 4px solid #2196F3;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 8px;
+        }
+        .code {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            margin: 1rem 0;
+            overflow-x: auto;
+        }
+        .btn {
+            display: inline-block;
+            padding: 1rem 2rem;
+            background: #D3273E;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin: 0.5rem;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            background: #A0222F;
+        }
+        .btn-primary {
+            background: #F5B841;
+            color: #1a3a1f;
+        }
+        .btn-primary:hover {
+            background: #E8A825;
+        }
+        .step {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border-radius: 12px;
+            border: 2px solid rgba(245, 184, 65, 0.3);
+        }
+        .step-number {
+            background: #F5B841;
+            color: #1a3a1f;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-right: 1rem;
+        }
+        ul {
+            margin: 1rem 0 1rem 2rem;
+        }
+        li {
+            margin: 0.5rem 0;
+        }
+        .test-button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            margin: 0.5rem;
+        }
+        .test-button:hover {
+            background: #1976D2;
+        }
+        #test-results {
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Local Testing Guide</h1>
+        <p style="font-size: 1.1rem; margin-bottom: 2rem;">
+            Quick guide to test your Mule Secret Santa application locally
+        </p>
+
+        <div class="error">
+            <h3>⚠️ About the "Cannot GET /api" Error</h3>
+            <p><strong>This is NORMAL!</strong> The <code>/api</code> endpoint is not meant to be accessed directly in a browser. It's just the base path for API endpoints.</p>
+        </div>
+
+        <h2>🚀 Quick Start (3 Steps)</h2>
+
+        <div class="step">
+            <span class="step-number">1</span>
+            <strong>Start the Backend Server</strong>
+            <div class="code">
+                cd Backend<br>
+                node server.js
+            </div>
+            <div class="success" style="margin-top: 1rem;">
+                ✅ You should see: "Server running on port 3000"<br>
+                ✅ And: "MongoDB Connected"
+            </div>
+        </div>
+
+        <div class="step">
+            <span class="step-number">2</span>
+            <strong>Open the Frontend</strong>
+            <p style="margin: 1rem 0;">Choose one of these methods:</p>
+            <ul>
+                <li><strong>Method A:</strong> Navigate to <code>Frontend</code> folder and double-click <code>index.html</code></li>
+                <li><strong>Method B:</strong> Right-click <code>index.html</code> → "Open with" → Chrome/Firefox</li>
+                <li><strong>Method C:</strong> Use VS Code Live Server extension</li>
+            </ul>
+        </div>
+
+        <div class="step">
+            <span class="step-number">3</span>
+            <strong>Test the Application</strong>
+            <p style="margin: 1rem 0;">Use the test buttons below:</p>
+            <button class="test-button" onclick="testBackend()">🔍 Test Backend</button>
+            <button class="test-button" onclick="testConfig()">⚙️ Test Config</button>
+            <button class="test-button" onclick="openApp()">🚀 Open App</button>
+            <div id="test-results"></div>
+        </div>
+
+        <h2>📋 URLs You Should Use</h2>
+
+        <div class="info">
+            <h3>✅ Correct URLs:</h3>
+            <ul>
+                <li><strong>Homepage:</strong> <code>file:///C:/Users/.../Frontend/index.html</code> (direct)</li>
+                <li><strong>Or:</strong> <code>http://127.0.0.1:5500/index.html</code> (Live Server)</li>
+                <li><strong>API Health:</strong> <a href="http://localhost:3000/api" target="_blank" style="color: #F5B841;">http://localhost:3000/api</a></li>
+            </ul>
+        </div>
+
+        <div class="error">
+            <h3>❌ Wrong URL:</h3>
+            <ul>
+                <li><strong>Don't access:</strong> <code>http://localhost:3000/api</code> expecting to see your app</li>
+                <li>This is an API endpoint, not the frontend!</li>
+            </ul>
+        </div>
+
+        <h2>🎯 Production Mode Test</h2>
+        <p>To test the full deployment setup (frontend served from backend):</p>
+        <div class="code">
+            # Set environment variable<br>
+            $env:NODE_ENV="production"<br>
+            <br>
+            # Start server<br>
+            cd Backend<br>
+            node server.js<br>
+            <br>
+            # Then visit: http://localhost:3000
+        </div>
+
+        <h2>🔗 Quick Links</h2>
+        <a href="../Frontend/index.html" class="btn btn-primary">Open Frontend</a>
+        <a href="http://localhost:3000/api" target="_blank" class="btn">API Health Check</a>
+        <a href="TEST_LOCAL.md" class="btn">Detailed Guide</a>
+
+        <h2>✅ Troubleshooting Checklist</h2>
+        <div class="step">
+            <ul style="list-style: none; margin-left: 0;">
+                <li>☐ Backend server running (<code>node server.js</code>)</li>
+                <li>☐ MongoDB connected (check server console)</li>
+                <li>☐ Frontend opened (index.html)</li>
+                <li>☐ Browser console clear (F12 → Console)</li>
+                <li>☐ No CORS errors</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        async function testBackend() {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<div class="info">Testing backend...</div>';
+            
+            try {
+                const response = await fetch('http://localhost:3000/api');
+                const data = await response.json();
+                
+                results.innerHTML = `
+                    <div class="success">
+                        <h3>✅ Backend is Running!</h3>
+                        <p><strong>Status:</strong> ${data.status}</p>
+                        <p><strong>Message:</strong> ${data.message}</p>
+                        <p><strong>Environment:</strong> ${data.environment}</p>
+                        <p><strong>Version:</strong> ${data.version}</p>
+                    </div>
+                `;
+            } catch (error) {
+                results.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Backend Not Running</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                        <p>Make sure you started the backend server:</p>
+                        <div class="code">cd Backend<br>node server.js</div>
+                    </div>
+                `;
+            }
+        }
+
+        function testConfig() {
+            const results = document.getElementById('test-results');
+            
+            if (typeof window.APP_CONFIG !== 'undefined') {
+                results.innerHTML = `
+                    <div class="success">
+                        <h3>✅ Config.js Loaded!</h3>
+                        <p><strong>Base URL:</strong> ${window.APP_CONFIG.BASE_URL}</p>
+                        <p><strong>API URL:</strong> ${window.APP_CONFIG.API_URL}</p>
+                        <p><strong>Admin URL:</strong> ${window.APP_CONFIG.ADMIN_URL}</p>
+                    </div>
+                `;
+            } else {
+                results.innerHTML = `
+                    <div class="error">
+                        <h3>❌ Config.js Not Loaded</h3>
+                        <p>This is expected since this is a standalone test page.</p>
+                        <p>Config.js will work when you open the actual frontend pages.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function openApp() {
+            const frontendPath = '../Frontend/index.html';
+            window.open(frontendPath, '_blank');
+            
+            const results = document.getElementById('test-results');
+            results.innerHTML = `
+                <div class="info">
+                    <h3>Opening Frontend...</h3>
+                    <p>The app should open in a new tab.</p>
+                    <p>If it doesn't open, navigate to:</p>
+                    <div class="code">Frontend/index.html</div>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

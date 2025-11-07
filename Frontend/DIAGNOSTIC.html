@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Connection Diagnostic Tool</title>
+    <script src="js/config.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a3a1f 0%, #2F5233 100%);
+            color: #fff;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        h1 {
+            color: #F5B841;
+            margin-bottom: 1rem;
+        }
+        h2 {
+            color: #FFD700;
+            margin: 2rem 0 1rem;
+        }
+        .test-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin: 1rem 0;
+        }
+        .test-button {
+            padding: 1rem 2rem;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            transition: all 0.3s;
+        }
+        .test-button:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+        .test-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+        .result {
+            margin: 1rem 0;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .success {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 4px solid #4CAF50;
+        }
+        .error {
+            background: rgba(244, 67, 54, 0.3);
+            border-left: 4px solid #f44336;
+        }
+        .info {
+            background: rgba(33, 150, 243, 0.3);
+            border-left: 4px solid #2196F3;
+        }
+        .warning {
+            background: rgba(255, 152, 0, 0.3);
+            border-left: 4px solid #FF9800;
+        }
+        .code {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 0.2rem 0;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 0.5rem;
+        }
+        .status-online {
+            background: #4CAF50;
+            box-shadow: 0 0 10px #4CAF50;
+        }
+        .status-offline {
+            background: #f44336;
+            box-shadow: 0 0 10px #f44336;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Frontend-Backend Connection Diagnostic</h1>
+        <p>This tool will help diagnose why your frontend can't connect to the backend.</p>
+
+        <!-- Config Check -->
+        <div class="test-section">
+            <h2>1. Configuration Check</h2>
+            <div id="config-result" class="result info">
+                <strong>Testing config.js...</strong>
+            </div>
+        </div>
+
+        <!-- Backend Connection Test -->
+        <div class="test-section">
+            <h2>2. Backend Connection Test</h2>
+            <button class="test-button" onclick="testBackendConnection()">🔌 Test Backend</button>
+            <div id="backend-result" class="result info" style="display:none;"></div>
+        </div>
+
+        <!-- API Endpoints Test -->
+        <div class="test-section">
+            <h2>3. API Endpoints Test</h2>
+            <button class="test-button" onclick="testLoginEndpoint()">🔐 Test Login Endpoint</button>
+            <button class="test-button" onclick="testSignupEndpoint()">📝 Test Signup Endpoint</button>
+            <div id="api-result" class="result info" style="display:none;"></div>
+        </div>
+
+        <!-- CORS Test -->
+        <div class="test-section">
+            <h2>4. CORS Test</h2>
+            <button class="test-button" onclick="testCORS()">🌐 Test CORS</button>
+            <div id="cors-result" class="result info" style="display:none;"></div>
+        </div>
+
+        <!-- Login Form Test -->
+        <div class="test-section">
+            <h2>5. Actual Login Test</h2>
+            <p>Try logging in with test credentials:</p>
+            <div style="margin: 1rem 0;">
+                <input type="text" id="test-username" placeholder="Username" value="admin" 
+                    style="padding: 0.5rem; margin: 0.5rem 0; width: 200px; border-radius: 4px; border: none;">
+                <br>
+                <input type="password" id="test-password" placeholder="Password" value="admin123456"
+                    style="padding: 0.5rem; margin: 0.5rem 0; width: 200px; border-radius: 4px; border: none;">
+                <br>
+                <button class="test-button" onclick="testActualLogin()">🚀 Try Login</button>
+            </div>
+            <div id="login-result" class="result info" style="display:none;"></div>
+        </div>
+
+        <!-- Network Inspector -->
+        <div class="test-section">
+            <h2>6. Network Inspector</h2>
+            <button class="test-button" onclick="showNetworkInfo()">📊 Show Network Info</button>
+            <div id="network-result" class="result info" style="display:none;"></div>
+        </div>
+
+        <!-- Run All Tests -->
+        <div class="test-section">
+            <h2>🎯 Run All Tests</h2>
+            <button class="test-button" onclick="runAllTests()" style="background: #F5B841; color: #1a3a1f; font-size: 1.1rem; padding: 1.2rem 2.5rem;">
+                ⚡ Run Complete Diagnostic
+            </button>
+            <div id="all-results" class="result info" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        // Check config on load
+        window.addEventListener('DOMContentLoaded', () => {
+            checkConfig();
+        });
+
+        function checkConfig() {
+            const result = document.getElementById('config-result');
+            
+            if (typeof window.APP_CONFIG === 'undefined') {
+                result.className = 'result error';
+                result.innerHTML = `
+                    <strong>❌ ERROR: config.js not loaded!</strong><br>
+                    <span class="code">window.APP_CONFIG</span> is undefined.<br><br>
+                    <strong>Fix:</strong> Make sure config.js exists at <span class="code">js/config.js</span>
+                `;
+                return false;
+            }
+
+            result.className = 'result success';
+            result.innerHTML = `
+                <strong>✅ Config.js loaded successfully!</strong><br><br>
+                <strong>BASE_URL:</strong> <span class="code">${window.APP_CONFIG.BASE_URL}</span><br>
+                <strong>API_URL:</strong> <span class="code">${window.APP_CONFIG.API_URL}</span><br>
+                <strong>ADMIN_URL:</strong> <span class="code">${window.APP_CONFIG.ADMIN_URL}</span><br><br>
+                <strong>Environment:</strong> ${window.location.hostname === 'localhost' ? 'Development (localhost)' : 'Production'}
+            `;
+            return true;
+        }
+
+        async function testBackendConnection() {
+            const result = document.getElementById('backend-result');
+            result.style.display = 'block';
+            result.className = 'result info';
+            result.innerHTML = '<strong>Testing backend connection...</strong>';
+
+            const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
+            
+            try {
+                const startTime = performance.now();
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+                const endTime = performance.now();
+                const responseTime = (endTime - startTime).toFixed(2);
+                
+                const data = await response.json();
+                
+                result.className = 'result success';
+                result.innerHTML = `
+                    <strong>✅ Backend is ONLINE and responding!</strong><br><br>
+                    <strong>Response Time:</strong> ${responseTime}ms<br>
+                    <strong>Status Code:</strong> ${response.status}<br>
+                    <strong>Status:</strong> ${data.status}<br>
+                    <strong>Message:</strong> ${data.message}<br>
+                    <strong>Environment:</strong> ${data.environment}<br>
+                    <strong>Version:</strong> ${data.version}<br><br>
+                    <strong>Full Response:</strong><br>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    <strong>❌ Backend connection FAILED!</strong><br><br>
+                    <strong>Error:</strong> ${error.message}<br>
+                    <strong>URL Attempted:</strong> <span class="code">${API_URL}</span><br><br>
+                    <strong>Possible Causes:</strong><br>
+                    1. Backend server is not running<br>
+                    2. Backend is running on a different port<br>
+                    3. CORS issues (check browser console)<br>
+                    4. Firewall blocking the connection<br><br>
+                    <strong>To Fix:</strong><br>
+                    1. Make sure backend is running: <span class="code">cd Backend && node server.js</span><br>
+                    2. Check if something else is using port 3000<br>
+                    3. Check browser console (F12) for detailed errors
+                `;
+            }
+        }
+
+        async function testLoginEndpoint() {
+            const result = document.getElementById('api-result');
+            result.style.display = 'block';
+            result.className = 'result info';
+            result.innerHTML = '<strong>Testing login endpoint...</strong>';
+
+            const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
+            
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: 'nonexistent_user',
+                        password: 'wrong_password'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                result.className = 'result success';
+                result.innerHTML = `
+                    <strong>✅ Login endpoint is responding!</strong><br><br>
+                    <strong>Status Code:</strong> ${response.status}<br>
+                    <strong>Response:</strong> ${data.message}<br><br>
+                    <em>Note: We sent invalid credentials on purpose to test the endpoint. 
+                    The fact that it responded means the endpoint is working!</em>
+                `;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    <strong>❌ Login endpoint FAILED!</strong><br><br>
+                    <strong>Error:</strong> ${error.message}<br>
+                    <strong>URL:</strong> <span class="code">${API_URL}/login</span>
+                `;
+            }
+        }
+
+        async function testSignupEndpoint() {
+            const result = document.getElementById('api-result');
+            result.style.display = 'block';
+            result.className = 'result info';
+            result.innerHTML = '<strong>Testing signup endpoint...</strong>';
+
+            const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
+            
+            try {
+                const response = await fetch(`${API_URL}/signup`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: '',
+                        email: 'invalid',
+                        password: ''
+                    })
+                });
+                
+                const data = await response.json();
+                
+                result.className = 'result success';
+                result.innerHTML = `
+                    <strong>✅ Signup endpoint is responding!</strong><br><br>
+                    <strong>Status Code:</strong> ${response.status}<br>
+                    <strong>Response:</strong> ${data.message}<br><br>
+                    <em>Note: We sent invalid data on purpose. The endpoint is working!</em>
+                `;
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    <strong>❌ Signup endpoint FAILED!</strong><br><br>
+                    <strong>Error:</strong> ${error.message}
+                `;
+            }
+        }
+
+        async function testCORS() {
+            const result = document.getElementById('cors-result');
+            result.style.display = 'block';
+            result.className = 'result info';
+            result.innerHTML = '<strong>Testing CORS configuration...</strong>';
+
+            const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'OPTIONS',
+                });
+                
+                const corsHeaders = {
+                    'Access-Control-Allow-Origin': response.headers.get('Access-Control-Allow-Origin'),
+                    'Access-Control-Allow-Methods': response.headers.get('Access-Control-Allow-Methods'),
+                    'Access-Control-Allow-Headers': response.headers.get('Access-Control-Allow-Headers'),
+                };
+                
+                result.className = 'result success';
+                result.innerHTML = `
+                    <strong>✅ CORS is configured!</strong><br><br>
+                    <strong>CORS Headers:</strong><br>
+                    <pre>${JSON.stringify(corsHeaders, null, 2)}</pre>
+                `;
+            } catch (error) {
+                result.className = 'result warning';
+                result.innerHTML = `
+                    <strong>⚠️ CORS test inconclusive</strong><br><br>
+                    <strong>Error:</strong> ${error.message}<br><br>
+                    If you can access the API but get CORS errors, check browser console (F12).
+                `;
+            }
+        }
+
+        async function testActualLogin() {
+            const result = document.getElementById('login-result');
+            result.style.display = 'block';
+            result.className = 'result info';
+            result.innerHTML = '<strong>Attempting login...</strong>';
+
+            const username = document.getElementById('test-username').value;
+            const password = document.getElementById('test-password').value;
+            const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
+            
+            try {
+                const response = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        name: username,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.token) {
+                    result.className = 'result success';
+                    result.innerHTML = `
+                        <strong>✅ LOGIN SUCCESSFUL!</strong><br><br>
+                        <strong>User:</strong> ${username}<br>
+                        <strong>Token received!</strong> (first 50 chars): <span class="code">${data.token.substring(0, 50)}...</span><br><br>
+                        <strong>🎉 Your frontend and backend are connected and working!</strong><br><br>
+                        You can now go to <a href="login.html" style="color: #F5B841;">login.html</a> and login normally.
+                    `;
+                } else {
+                    result.className = 'result error';
+                    result.innerHTML = `
+                        <strong>❌ Login failed</strong><br><br>
+                        <strong>Status:</strong> ${response.status}<br>
+                        <strong>Message:</strong> ${data.message}<br><br>
+                        The endpoint is working, but the credentials are incorrect.<br>
+                        Try different credentials or create a new account.
+                    `;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.innerHTML = `
+                    <strong>❌ Login request FAILED!</strong><br><br>
+                    <strong>Error:</strong> ${error.message}<br><br>
+                    <strong>This means the frontend cannot reach the backend!</strong><br><br>
+                    <strong>Troubleshooting steps:</strong><br>
+                    1. Check if backend is running (should see "Server running on port 3000")<br>
+                    2. Check browser console (F12) for detailed errors<br>
+                    3. Try accessing <a href="http://localhost:3000/api" target="_blank" style="color: #F5B841;">http://localhost:3000/api</a> directly
+                `;
+            }
+        }
+
+        function showNetworkInfo() {
+            const result = document.getElementById('network-result');
+            result.style.display = 'block';
+            result.className = 'result info';
+            
+            result.innerHTML = `
+                <strong>📊 Network Information</strong><br><br>
+                <strong>Current Page URL:</strong> <span class="code">${window.location.href}</span><br>
+                <strong>Protocol:</strong> ${window.location.protocol}<br>
+                <strong>Hostname:</strong> ${window.location.hostname}<br>
+                <strong>Port:</strong> ${window.location.port || '(default)'}<br>
+                <strong>Origin:</strong> ${window.location.origin}<br><br>
+                <strong>User Agent:</strong> ${navigator.userAgent}<br><br>
+                <strong>Online Status:</strong> ${navigator.onLine ? '✅ Online' : '❌ Offline'}
+            `;
+        }
+
+        async function runAllTests() {
+            const result = document.getElementById('all-results');
+            result.style.display = 'block';
+            result.className = 'result info';
+            result.innerHTML = '<strong>⚡ Running complete diagnostic...</strong><br><br>';
+
+            const tests = [];
+            
+            // Test 1: Config
+            result.innerHTML += '1️⃣ Checking config... ';
+            const configOk = checkConfig();
+            tests.push({name: 'Config', passed: configOk});
+            result.innerHTML += configOk ? '✅<br>' : '❌<br>';
+            
+            // Test 2: Backend
+            result.innerHTML += '2️⃣ Testing backend connection... ';
+            try {
+                const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
+                const resp = await fetch(API_URL);
+                const backendOk = resp.ok;
+                tests.push({name: 'Backend Connection', passed: backendOk});
+                result.innerHTML += backendOk ? '✅<br>' : '❌<br>';
+            } catch (e) {
+                tests.push({name: 'Backend Connection', passed: false});
+                result.innerHTML += '❌<br>';
+            }
+            
+            // Test 3: Login Endpoint
+            result.innerHTML += '3️⃣ Testing login endpoint... ';
+            try {
+                const API_URL = window.APP_CONFIG?.API_URL || 'http://localhost:3000/api';
+                const resp = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({name: 'test', password: 'test'})
+                });
+                const loginOk = resp.status === 401 || resp.status === 200;
+                tests.push({name: 'Login Endpoint', passed: loginOk});
+                result.innerHTML += loginOk ? '✅<br>' : '❌<br>';
+            } catch (e) {
+                tests.push({name: 'Login Endpoint', passed: false});
+                result.innerHTML += '❌<br>';
+            }
+
+            // Summary
+            const passedTests = tests.filter(t => t.passed).length;
+            const totalTests = tests.length;
+            
+            result.innerHTML += '<br><hr style="border-color: rgba(255,255,255,0.3); margin: 1rem 0;"><br>';
+            result.innerHTML += `<strong>📊 Test Summary: ${passedTests}/${totalTests} tests passed</strong><br><br>`;
+            
+            if (passedTests === totalTests) {
+                result.className = 'result success';
+                result.innerHTML += `
+                    <strong>🎉 ALL TESTS PASSED!</strong><br><br>
+                    Your frontend and backend are properly connected!<br><br>
+                    <strong>Next steps:</strong><br>
+                    1. Go to <a href="login.html" style="color: #1a3a1f; font-weight: bold;">login.html</a><br>
+                    2. Login with your credentials<br>
+                    3. Start using the app!<br><br>
+                    <em>If login still doesn't work, check your username/password or create a new account.</em>
+                `;
+            } else {
+                result.className = 'result error';
+                result.innerHTML += `<strong>❌ Some tests failed</strong><br><br>`;
+                
+                tests.forEach(test => {
+                    result.innerHTML += test.passed ? 
+                        `✅ ${test.name}<br>` : 
+                        `❌ ${test.name} - FAILED<br>`;
+                });
+                
+                result.innerHTML += `<br><strong>Troubleshooting:</strong><br>
+                    1. Make sure backend is running: <span class="code">cd Backend && node server.js</span><br>
+                    2. Check browser console (F12) for errors<br>
+                    3. Check if config.js exists at <span class="code">Frontend/js/config.js</span><br>
+                    4. Try restarting the backend server
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
