@@ -437,7 +437,8 @@
             }
 
             .snowflake {
-                display: none; /* Hide snowflakes on mobile for better performance */
+                display: none;
+                /* Hide snowflakes on mobile for better performance */
             }
         }
 
@@ -635,7 +636,7 @@
             // Reduce snowflakes on mobile for better performance
             const isMobile = window.innerWidth <= 768;
             const snowflakeCount = isMobile ? 10 : 20;
-            
+
             for (let i = 0; i < snowflakeCount; i++) {
                 const snowflake = document.createElement('div');
                 snowflake.className = 'snowflake';
