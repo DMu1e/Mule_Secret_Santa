@@ -29,7 +29,6 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1a3a1f 0%, #2F5233 50%, #1a3a1f 100%) !important;
             min-height: 100vh;
-            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -38,11 +37,13 @@
             margin: 0;
             position: relative;
             width: 100%;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         html {
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             height: 100%;
         }
 
@@ -369,26 +370,40 @@
 
         /* Responsive Design */
         @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+                height: auto;
+                min-height: 100vh;
+            }
+
+            .container {
+                padding: 1rem;
+            }
+
             h1 {
                 font-size: 2rem;
+                margin-bottom: 1rem;
             }
 
             .subtitle {
-                font-size: 1.1rem;
+                font-size: 1rem;
+                margin-bottom: 1rem;
             }
 
             .instruction {
-                font-size: 0.95rem;
+                font-size: 0.9rem;
+                margin-bottom: 2rem;
             }
 
             .gifts-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 1.5rem;
+                gap: 1rem;
+                padding: 0;
             }
 
             .gift-box {
-                padding: 2rem 1rem;
-                min-height: 200px;
+                padding: 1.5rem 1rem;
+                min-height: 150px;
             }
 
             .gift-icon {
@@ -401,11 +416,115 @@
                 padding: 0.6rem 1rem;
                 font-size: 0.9rem;
             }
+
+            .selection-counter {
+                top: 1rem;
+                right: 1rem;
+                padding: 0.8rem 1.2rem;
+                font-size: 0.95rem;
+            }
+
+            .selection-counter .count {
+                font-size: 1.1rem;
+            }
+
+            .loading-text {
+                font-size: 1.2rem;
+            }
+
+            .loading-subtext {
+                font-size: 0.9rem;
+            }
+
+            .snowflake {
+                display: none; /* Hide snowflakes on mobile for better performance */
+            }
         }
 
         @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+            }
+
+            .container {
+                padding: 0.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .subtitle {
+                font-size: 0.9rem;
+                margin-bottom: 0.8rem;
+            }
+
+            .instruction {
+                font-size: 0.85rem;
+                margin-bottom: 1.5rem;
+            }
+
             .gifts-grid {
                 grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .gift-box {
+                padding: 2rem 1rem;
+                min-height: 140px;
+            }
+
+            .gift-icon {
+                font-size: 2.5rem;
+            }
+
+            .back-button {
+                top: 0.5rem;
+                left: 0.5rem;
+                padding: 0.5rem 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .selection-counter {
+                top: 0.5rem;
+                right: 0.5rem;
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+
+            .selection-counter .count {
+                font-size: 1rem;
+            }
+
+            .loading-text {
+                font-size: 1rem;
+            }
+
+            .loading-subtext {
+                font-size: 0.85rem;
+            }
+
+            .spinner {
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* Landscape mode for mobile devices */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .gifts-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 0.8rem;
+            }
+
+            .gift-box {
+                padding: 1rem;
+                min-height: 120px;
+            }
+
+            .gift-icon {
+                font-size: 2rem;
             }
         }
     </style>
@@ -513,7 +632,10 @@
 
         // Snowflake effect
         function createSnowflakes() {
-            const snowflakeCount = 20;
+            // Reduce snowflakes on mobile for better performance
+            const isMobile = window.innerWidth <= 768;
+            const snowflakeCount = isMobile ? 10 : 20;
+            
             for (let i = 0; i < snowflakeCount; i++) {
                 const snowflake = document.createElement('div');
                 snowflake.className = 'snowflake';
