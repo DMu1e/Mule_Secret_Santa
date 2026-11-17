@@ -167,6 +167,10 @@
             transform: translateY(-1px);
         }
 
+        .delete-btn {
+            background: var(--christmas-red);
+        }
+
         .child-user {
             color: var(--christmas-red);
             font-style: italic;
@@ -186,6 +190,45 @@
             color: #666;
             font-style: italic;
         }
+
+        @media print {
+            body {
+                background: white;
+            }
+
+            .header {
+                background: none;
+                color: var(--pine-dark);
+                margin-bottom: 1rem;
+            }
+
+            .nav-buttons,
+            .info-box,
+            .error-message,
+            .success-message {
+                display: none !important;
+            }
+
+            .container {
+                max-width: none;
+                padding: 0;
+            }
+
+            .section {
+                padding: 0;
+                margin: 0;
+                box-shadow: none;
+            }
+
+            .section h2 {
+                margin-bottom: 1rem;
+            }
+
+            .assignments-table {
+                box-shadow: none;
+                margin-top: 0;
+            }
+        }
     </style>
 </head>
 
@@ -202,6 +245,12 @@
             </button>
             <button class="button" onclick="regenerateAssignments()">
                 <i class="fas fa-sync"></i> Regenerate Assignments
+            </button>
+            <button class="button delete-btn" onclick="deleteAssignments()">
+                <i class="fas fa-trash"></i> Delete Assignments
+            </button>
+            <button class="button" onclick="printAssignments()">
+                <i class="fas fa-print"></i> Print Assignments
             </button>
         </div>
 
@@ -317,7 +366,7 @@
                     tableBody.innerHTML = `
                         <tr>
                             <td colspan="3" class="no-assignments">
-                                <i class="fas fa-info-circle"></i> No assignments have been made yet.
+                                <i class="fas fa-info-circle"></i> Assignments have not been generated
                             </td>
                         </tr>
                     `;
@@ -358,6 +407,29 @@
                 console.error('Regeneration error:', error);
                 showError(`Error regenerating assignments: ${error.message || 'Unknown error'}`);
             }
+        }
+
+        async function deleteAssignments() {
+            if (!window.confirm('Are you sure you want to delete all assignments?')) {
+                return;
+            }
+
+            try {
+                await apiRequest('/assignments', {
+                    baseURL: ADMIN_URL,
+                    method: 'DELETE'
+                });
+
+                showSuccess('All assignments have been deleted successfully');
+                await loadAssignments();
+            } catch (error) {
+                console.error('Delete assignments error:', error);
+                showError(`Error deleting assignments: ${error.message || 'Unknown error'}`);
+            }
+        }
+
+        function printAssignments() {
+            window.print();
         }
 
         // Helper function to get status class

@@ -302,6 +302,19 @@ async function generateSantaAssignments() {
                     continue;
                 }
 
+                // Persist each recipient's Santa so assignments survive server restarts.
+                await Promise.all(assignments.map(assignment =>
+                    User.updateOne(
+                        { _id: assignment.recipient._id },
+                        {
+                            $set: {
+                                santa: assignment.santa._id,
+                                Santa_name: assignment.santa.name
+                            }
+                        }
+                    )
+                ));
+
                 // Store assignments in memory
                 global.currentAssignments = assignments;
                 return assignments;

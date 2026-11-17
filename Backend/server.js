@@ -203,6 +203,19 @@ const requireAdmin = (req, res, next) => {
     next();
 };
 
+const getPersistedAssignments = async () => {
+    const recipients = await User.find({ santa: { $ne: null } })
+        .populate('santa', 'name isChild')
+        .lean();
+
+    return recipients.map(recipient => ({
+        recipient,
+        santa: recipient.santa,
+        Santa_name: recipient.Santa_name,
+        status: 'valid'
+    }));
+};
+
 // Wishlist endpoints
 // Search for a user's wishlist
 app.get('/api/wishlist/search/:username', authenticateToken, async (req, res) => {
@@ -637,21 +650,20 @@ app.delete('/api/admin/users/:userId', authenticateToken, requireAdmin, async (r
 // Get current user's assignment (for regular users)
 app.get('/api/assignment', authenticateToken, async (req, res) => {
     try {
-        // Check if assignments exist
-        if (!global.currentAssignments || global.currentAssignments.length === 0) {
+        const recipients = await User.find({ santa: req.user.userId })
+            .populate('santa', 'name isChild')
+            .lean();
+
+        if (recipients.length === 0) {
             return res.status(404).json({ message: 'No assignments have been generated yet' });
         }
 
-        // Filter assignments where current user is the Santa
-        const userAssignments = global.currentAssignments.filter(assignment =>
-            assignment.santa._id.toString() === req.user.userId.toString()
-        );
-
-        if (userAssignments.length === 0) {
-            return res.status(404).json({ message: 'No assignment found for you' });
-        }
-
-        res.json(userAssignments);
+        res.json(recipients.map(recipient => ({
+            recipient,
+            santa: recipient.santa,
+            Santa_name: recipient.Santa_name,
+            status: 'valid'
+        })));
     } catch (error) {
         console.error('Error getting user assignment:', error);
         res.status(500).json({ message: 'Error retrieving assignment' });
@@ -661,11 +673,7 @@ app.get('/api/assignment', authenticateToken, async (req, res) => {
 // Get all assignments (admin only)
 app.get('/api/admin/assignments', authenticateToken, requireAdmin, async (req, res) => {
     try {
-        // If no current assignments exist or force regenerate is requested, generate new ones
-        if (!global.currentAssignments) {
-            global.currentAssignments = await generateSantaAssignments();
-        }
-        res.json(global.currentAssignments);
+        res.json(await getPersistedAssignments());
     } catch (error) {
         console.error('Error getting assignments:', error);
         res.status(500).json({ message: 'Error retrieving assignments' });
@@ -681,14 +689,14 @@ app.get('/api/gift-selection/status', authenticateToken, async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // Check if assignments have been made
-        const assignmentsExist = global.currentAssignments && global.currentAssignments.length > 0;
+        // Check if assignments have been persisted
+        const assignmentsExist = await User.exists({ santa: { $ne: null } });
 
         res.json({
-            canSelectGift: assignmentsExist && !user.hasSelectedGift,
+            canSelectGift: Boolean(assignmentsExist) && !user.hasSelectedGift,
             hasSelectedGift: user.hasSelectedGift,
             giftSelectionDate: user.giftSelectionDate,
-            assignmentsExist: assignmentsExist
+            assignmentsExist: Boolean(assignmentsExist)
         });
     } catch (error) {
         console.error('Error checking gift selection status:', error);
@@ -725,6 +733,26 @@ app.post('/api/gift-selection/complete', authenticateToken, async (req, res) => 
 });
 
 // Regenerate Santa assignments (admin only)
+app.delete('/api/admin/assignments', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        await User.updateMany({}, {
+            $set: {
+                santa: null,
+                Santa_name: null,
+                hasSelectedGift: false,
+                giftSelectionDate: null
+            }
+        });
+
+        global.currentAssignments = [];
+
+        res.json({ message: 'All assignments deleted successfully' });
+    } catch (error) {
+        console.error('❌ Error deleting assignments:', error);
+        res.status(500).json({ message: 'Error deleting assignments' });
+    }
+});
+
 app.post('/api/admin/assignments/regenerate', authenticateToken, requireAdmin, async (req, res) => {
     try {
         console.log('📌 Regenerate assignments endpoint called');

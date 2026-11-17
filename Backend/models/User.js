@@ -70,6 +70,16 @@ const userSchema = new mongoose.Schema({
     giftSelectionDate: {
         type: Date,
         default: null
+    },
+    santa: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
+    },
+    Santa_name: {
+        type: String,
+        default: null,
+        trim: true
     }
 });
 

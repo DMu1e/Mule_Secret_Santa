@@ -90,4 +90,4 @@ I also want to have an admin user who can customise the number of people a speci
 
 Only after the admin has set all the parameters and confirmed it, should the system randomly assign Santas to every user.The admin should also be able to see every users santa.The admin should also have the ability to add child users who do not have a login.
 
-The database will have the following ID, Name, Family, no_of_giftees, Email, password.This will be known as the user Table .
+The `users` collection stores each user's ID, name, email, hashed password, admin/child status, parent, age, creation date, maximum gifts, cluster, included/excluded users, gift-selection status, `santa` (the ID of their assigned Santa), and `Santa_name` (the readable name of their assigned Santa). The admin can delete assignments to clear both Santa fields for every user. Wishlists are stored in a separate `wishlists` collection.

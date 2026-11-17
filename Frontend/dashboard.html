@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mule Secret Santa Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="Pictures/Secret_Favicon.svg">
     <link rel="stylesheet" href="styles.css">
     <!-- Add FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -227,6 +228,80 @@
             font-size: 1.05rem;
             line-height: 1.8;
             color: #4a5568;
+        }
+
+        /* Boxing Day Countdown */
+        .countdown-section {
+            background: var(--green-gradient);
+            color: var(--snow-white);
+            padding: 2rem 2.5rem;
+            margin-bottom: 2.5rem;
+            border-radius: 20px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+            text-align: center;
+        }
+
+        .countdown-section::before {
+            content: '';
+            position: absolute;
+            width: 220px;
+            height: 220px;
+            top: -130px;
+            right: -60px;
+            border: 2px solid rgba(245, 184, 65, 0.3);
+            border-radius: 50%;
+        }
+
+        .countdown-section h2,
+        .countdown-section p,
+        .countdown-grid {
+            position: relative;
+            z-index: 1;
+        }
+
+        .countdown-section h2 {
+            color: var(--warm-gold);
+            margin-bottom: 0.4rem;
+            font-size: 1.8rem;
+        }
+
+        .countdown-section p {
+            margin-bottom: 1.5rem;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .countdown-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(70px, 1fr));
+            gap: 1rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        .countdown-unit {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 12px;
+            padding: 1rem 0.5rem;
+            backdrop-filter: blur(6px);
+        }
+
+        .countdown-value {
+            display: block;
+            color: var(--warm-gold);
+            font-size: 2.2rem;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .countdown-label {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         /* Premium Dashboard Sections */
@@ -776,6 +851,14 @@
                 font-size: 1.5rem;
             }
 
+            .countdown-section {
+                padding: 1.5rem;
+            }
+
+            .countdown-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
             .add-item-form,
             .admin-controls-section {
                 padding: 1.5rem;
@@ -949,6 +1032,30 @@
                 <p>3. Be as creative as you can....</p>
                 <p>4. Giving is from the heart.</p>
             </div>
+
+            <!-- Boxing Day Countdown -->
+            <section class="countdown-section" aria-labelledby="boxing-day-title">
+                <h2 id="boxing-day-title"><i class="fas fa-gift"></i> Boxing Day Countdown</h2>
+                <p>Counting down to the day of giving and sharing.</p>
+                <div class="countdown-grid" id="boxing-day-countdown" aria-live="polite">
+                    <div class="countdown-unit">
+                        <span class="countdown-value" id="countdown-days">0</span>
+                        <span class="countdown-label">Days</span>
+                    </div>
+                    <div class="countdown-unit">
+                        <span class="countdown-value" id="countdown-hours">00</span>
+                        <span class="countdown-label">Hours</span>
+                    </div>
+                    <div class="countdown-unit">
+                        <span class="countdown-value" id="countdown-minutes">00</span>
+                        <span class="countdown-label">Minutes</span>
+                    </div>
+                    <div class="countdown-unit">
+                        <span class="countdown-value" id="countdown-seconds">00</span>
+                        <span class="countdown-label">Seconds</span>
+                    </div>
+                </div>
+            </section>
 
             <!-- Christmas Memories Slideshow -->
             <section class="christmas-slideshow">
@@ -1298,12 +1405,44 @@
             slideInterval = setInterval(nextSlide, 4000);
         }
 
+        function getNextBoxingDay() {
+            const now = new Date();
+            let boxingDay = new Date(now.getFullYear(), 11, 26);
+
+            if (now >= boxingDay) {
+                boxingDay = new Date(now.getFullYear() + 1, 11, 26);
+            }
+
+            return boxingDay;
+        }
+
+        function updateBoxingDayCountdown() {
+            const now = new Date();
+            const difference = getNextBoxingDay() - now;
+            const totalSeconds = Math.max(0, Math.floor(difference / 1000));
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            document.getElementById('countdown-days').textContent = days;
+            document.getElementById('countdown-hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('countdown-minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('countdown-seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        function startBoxingDayCountdown() {
+            updateBoxingDayCountdown();
+            setInterval(updateBoxingDayCountdown, 1000);
+        }
+
         // Initialize dashboard
         document.addEventListener('DOMContentLoaded', function () {
             checkUserRole();
             loadUserData();
             loadWishlist();
             startSlideshow(); // Start the slideshow
+            startBoxingDayCountdown();
         });
     </script>
 </body>
