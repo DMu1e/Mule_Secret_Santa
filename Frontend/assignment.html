@@ -485,7 +485,7 @@
                     <div class="assignment-reveal">
                         <div class="assignment-label">You are Secret Santa for:</div>
                         <div class="recipient-name">${assignments[0].recipient.name}</div>
-                        ${assignments[0].recipient.isChild ? '<div style="font-size: 1.2rem; margin-top: 1rem;">👶 Child Recipient</div>' : ''}
+                        ${assignments[0].recipient.isChild ? '<div style="font-size: 1.2rem; margin-top: 1rem;"></div>' : ''}
                     </div>
                 `;
             } else {
@@ -499,7 +499,7 @@
                             <div class="assignment-item">
                                 <div class="assignment-number">Gift #${index + 1}</div>
                                 <div class="recipient-name" style="font-size: 2.5rem;">${assignment.recipient.name}</div>
-                                ${assignment.recipient.isChild ? '<div style="font-size: 1rem; margin-top: 0.5rem;">👶 Child Recipient</div>' : ''}
+                                ${assignment.recipient.isChild ? '<div style="font-size: 1rem; margin-top: 0.5rem;"></div>' : ''}
                             </div>
                         `).join('')}
                     </div>
